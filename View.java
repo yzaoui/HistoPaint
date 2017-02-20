@@ -1,7 +1,5 @@
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
@@ -17,6 +15,10 @@ public class View extends JFrame implements Observer {
     private Stroke currentStroke;
     private int oldX, oldY;
 
+    public static final int canvasW = 400;
+    public static final int canvasH = 300;
+    public static final int defaultStrokeSize = 3;
+
     /**
      * Create a new View.
      */
@@ -28,7 +30,7 @@ public class View extends JFrame implements Observer {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.currentColor = Color.black;
-        this.currentStroke = new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.7f);
+        this.currentStroke = new BasicStroke(defaultStrokeSize, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.7f);
 
         /********************
          * Set up the menu bar
@@ -78,7 +80,7 @@ public class View extends JFrame implements Observer {
         JPanel strokePanel = new JPanel();
         leftPanel.add(strokePanel);
 
-        SpinnerNumberModel numModel = new SpinnerNumberModel(1, 1, 10, 1);
+        SpinnerNumberModel numModel = new SpinnerNumberModel(defaultStrokeSize, 1, 10, 1);
         JSpinner spinner = new JSpinner(numModel);
         strokePanel.add(spinner);
 
@@ -183,5 +185,19 @@ public class View extends JFrame implements Observer {
         // XXX Fill this in with the logic for updating the view when the model
         // changes.
         System.out.println("Model changed!");
+    }
+
+    public class ColorButton extends JButton {
+        public ColorButton(Color bg) {
+            this.setPreferredSize(new Dimension(20, 20));
+            this.setBackground(bg);
+
+            this.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    currentColor = bg;
+                }
+            });
+        }
     }
 }
