@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 
 public class View extends JFrame implements Observer {
 
@@ -12,12 +13,12 @@ public class View extends JFrame implements Observer {
     private Graphics2D gc2;
     private BufferedImage canvas;
     private Color currentColor;
-    private Stroke currentStroke;
+    private BasicStroke currentStroke;
     private int oldX, oldY;
 
-    public static final int canvasW = 400;
-    public static final int canvasH = 300;
-    public static final int defaultStrokeSize = 3;
+    private static final int canvasW = 400;
+    private static final int canvasH = 300;
+    private static final int defaultStrokeSize = 3;
 
     /**
      * Create a new View.
@@ -30,7 +31,6 @@ public class View extends JFrame implements Observer {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         this.currentColor = Color.black;
-        this.currentStroke = new BasicStroke(defaultStrokeSize, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.7f);
 
         /********************
          * Set up the menu bar
@@ -77,12 +77,18 @@ public class View extends JFrame implements Observer {
         /********************
          * Stroke Thickness
          ********************/
+        this.currentStroke = new BasicStroke(defaultStrokeSize);
         JPanel strokePanel = new JPanel();
         leftPanel.add(strokePanel);
 
-        SpinnerNumberModel numModel = new SpinnerNumberModel(defaultStrokeSize, 1, 10, 1);
+        SpinnerNumberModel numModel = new SpinnerNumberModel(defaultStrokeSize, 1, 15, 1);
         JSpinner spinner = new JSpinner(numModel);
         strokePanel.add(spinner);
+
+        spinner.addChangeListener((ChangeEvent e) -> {
+            int newStrokeWidth = (int)numModel.getValue();
+            currentStroke = new BasicStroke(newStrokeWidth);
+        });
 
         /********************
          * Playback Controls
@@ -192,11 +198,8 @@ public class View extends JFrame implements Observer {
             this.setPreferredSize(new Dimension(20, 20));
             this.setBackground(bg);
 
-            this.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    currentColor = bg;
-                }
+            this.addActionListener((ActionEvent e) -> {
+                currentColor = bg;
             });
         }
     }
