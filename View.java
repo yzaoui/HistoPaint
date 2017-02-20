@@ -10,11 +10,9 @@ import javax.swing.event.ChangeEvent;
 public class View extends JFrame implements Observer {
 
     private Model model;
-    private Graphics2D gc2;
     private BufferedImage canvas;
     private Color currentColor;
     private BasicStroke currentStroke;
-    private int oldX, oldY;
 
     private static final int canvasW = 400;
     private static final int canvasH = 300;
@@ -119,8 +117,8 @@ public class View extends JFrame implements Observer {
         /********************
          * Drawing Area
          ********************/
-        canvas = new BufferedImage(400, 300, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = canvas.createGraphics();
+        canvas = new BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB);
+        model.setGraphics(canvas.createGraphics());
 
         JPanel drawPanel = new JPanel() {
             @Override
@@ -138,17 +136,11 @@ public class View extends JFrame implements Observer {
             public void mousePressed(MouseEvent e) {
                 int pW = drawPanel.getWidth();
                 int pH = drawPanel.getHeight();
-                float scaleW = 400f / pW;
-                float scaleH = 300f / pH;
+                float scaleW = (float)canvasW / pW;
+                float scaleH = (float)canvasH / pH;
 
-                oldX = (int)(e.getX() * scaleW);
-                oldY = (int)(e.getY() * scaleH);
+                model.strokeStart(currentColor, currentStroke, (int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
 
-                Graphics2D gc = canvas.createGraphics();
-                gc.setColor(currentColor);
-                gc.setStroke(currentStroke);
-                gc.drawLine(oldX, oldY, oldX, oldY);
-                gc.dispose();
                 drawPanel.repaint();
             }
         });
@@ -158,21 +150,12 @@ public class View extends JFrame implements Observer {
             public void mouseDragged(MouseEvent e) {
                 int pW = drawPanel.getWidth();
                 int pH = drawPanel.getHeight();
-                float scaleW = 400f / pW;
-                float scaleH = 300f / pH;
+                float scaleW = (float)canvasW / pW;
+                float scaleH = (float)canvasH / pH;
 
-                int newX = (int)(e.getX() * scaleW);
-                int newY = (int)(e.getY() * scaleH);
+                model.strokeContinue(currentColor, currentStroke, (int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
 
-                Graphics2D gc = canvas.createGraphics();
-                gc.setColor(currentColor);
-                gc.setStroke(currentStroke);
-                gc.drawLine(oldX, oldY, newX, newY);
-                gc.dispose();
                 drawPanel.repaint();
-
-                oldX = newX;
-                oldY = newY;
             }
         });
 

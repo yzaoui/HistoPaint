@@ -1,9 +1,13 @@
 
-import java.util.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Model {
     /** The observers that are watching this model for changes. */
     private List<Observer> observers;
+    private Graphics2D gc;
+    private int oldX, oldY;
 
     /**
      * Create a new model.
@@ -33,5 +37,27 @@ public class Model {
         for (Observer observer: this.observers) {
             observer.update(this);
         }
+    }
+
+    public void setGraphics(Graphics2D graphics) {
+        gc = graphics;
+    }
+
+    public void strokeStart(Color color, Stroke stroke, int x, int y) {
+        gc.setColor(color);
+        gc.setStroke(stroke);
+        gc.drawLine(x, y, x, y);
+
+        oldX = x;
+        oldY = y;
+    }
+
+    public void strokeContinue(Color color, Stroke stroke, int x, int y) {
+        gc.setColor(color);
+        gc.setStroke(stroke);
+        gc.drawLine(oldX, oldY, x, y);
+
+        oldX = x;
+        oldY = y;
     }
 }
