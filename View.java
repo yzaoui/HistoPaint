@@ -1,4 +1,8 @@
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 import java.awt.*;
@@ -7,6 +11,11 @@ import javax.swing.*;
 public class View extends JFrame implements Observer {
 
     private Model model;
+    private Graphics2D gc2;
+    private BufferedImage canvas;
+    private Color currentColor;
+    private Stroke currentStroke;
+    private int oldX, oldY;
 
     /**
      * Create a new View.
@@ -17,6 +26,9 @@ public class View extends JFrame implements Observer {
         this.setMinimumSize(new Dimension(128, 128));
         this.setSize(800, 600);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        this.currentColor = Color.black;
+        this.currentStroke = new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.7f);
 
         /********************
          * Set up the menu bar
@@ -99,11 +111,62 @@ public class View extends JFrame implements Observer {
         /********************
          * Drawing Area
          ********************/
+        canvas = new BufferedImage(400, 300, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = canvas.createGraphics();
 
-        JPanel drawPanel = new JPanel();
+        JPanel drawPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(canvas, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
         this.add(drawPanel, BorderLayout.CENTER);
 
         drawPanel.setBackground(Color.white);
+
+        drawPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int pW = drawPanel.getWidth();
+                int pH = drawPanel.getHeight();
+                float scaleW = 400f / pW;
+                float scaleH = 300f / pH;
+
+                oldX = (int)(e.getX() * scaleW);
+                oldY = (int)(e.getY() * scaleH);
+
+                Graphics2D gc = canvas.createGraphics();
+                gc.setColor(currentColor);
+                gc.setStroke(currentStroke);
+                gc.drawLine(oldX, oldY, oldX, oldY);
+                gc.dispose();
+                drawPanel.repaint();
+            }
+        });
+
+        drawPanel.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int pW = drawPanel.getWidth();
+                int pH = drawPanel.getHeight();
+                float scaleW = 400f / pW;
+                float scaleH = 300f / pH;
+
+                int newX = (int)(e.getX() * scaleW);
+                int newY = (int)(e.getY() * scaleH);
+
+                Graphics2D gc = canvas.createGraphics();
+                gc.setColor(currentColor);
+                gc.setStroke(currentStroke);
+                gc.drawLine(oldX, oldY, newX, newY);
+                gc.dispose();
+                drawPanel.repaint();
+
+                oldX = newX;
+                oldY = newY;
+            }
+        });
 
         // Hook up this observer so that it will be notified when the model
         // changes.
