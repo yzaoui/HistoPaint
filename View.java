@@ -1,8 +1,6 @@
 
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -115,8 +113,12 @@ public class View extends JFrame implements Observer {
         playbackPanel.add(playButton);
 
         //Slider
-        playSlider = new JSlider();
+        playSlider = new JSlider(0, 0);
         playbackPanel.add(playSlider);
+
+        playSlider.setPaintTicks(true);
+        playSlider.setMajorTickSpacing(1);
+        playSlider.setSnapToTicks(true);
 
         //Start button
         startButton = new JButton("Start");
@@ -207,10 +209,15 @@ public class View extends JFrame implements Observer {
         setPlayEnabled(strokeCount > 0); //enable playback if there are strokes
 
         if (strokeCount > 0) {
-            //TODO: Update ticks here
+            updatePlaySlider(strokeCount);
         }
+    }
 
-        System.out.println("Model changed!");
+    public void updatePlaySlider(int strokeCount) {
+        if (strokeCount != playSlider.getMaximum()) {
+            playSlider.setMaximum(strokeCount);
+            playSlider.setValue(playSlider.getMaximum());
+        }
     }
 
     public class ColorButton extends JButton {
