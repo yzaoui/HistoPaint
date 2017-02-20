@@ -106,6 +106,7 @@ public class View extends JFrame implements Observer {
         playbackPanel = new JPanel();
         this.add(playbackPanel, BorderLayout.SOUTH);
 
+        playbackPanel.setLayout(new BoxLayout(playbackPanel, BoxLayout.X_AXIS));
         playbackPanel.setBackground(Color.red);
 
         //Play button
