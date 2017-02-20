@@ -18,6 +18,20 @@ public class View extends JFrame implements Observer {
     private static final int canvasH = 300;
     private static final int defaultStrokeSize = 3;
 
+    private JPanel drawPanel;
+
+    private JPanel leftPanel;
+    private JPanel colorPanel;
+    private JPanel strokePanel;
+    private JSpinner spinner;
+
+    private JPanel playbackPanel;
+    private boolean playEnabled;
+    private JButton playButton;
+    private JSlider playSlider;
+    private JButton startButton;
+    private JButton endButton;
+
     /**
      * Create a new View.
      */
@@ -55,14 +69,14 @@ public class View extends JFrame implements Observer {
          ********************/
         this.setLayout(new BorderLayout());
 
-        JPanel leftPanel = new JPanel();
+        leftPanel = new JPanel();
         this.add(leftPanel, BorderLayout.WEST);
         leftPanel.setBackground(Color.darkGray);
 
         /********************
          * Color Picker
          ********************/
-        JPanel colorPanel = new JPanel();
+        colorPanel = new JPanel();
         leftPanel.add(colorPanel);
 
         colorPanel.setBackground(Color.blue);
@@ -76,11 +90,11 @@ public class View extends JFrame implements Observer {
          * Stroke Thickness
          ********************/
         this.currentStroke = new BasicStroke(defaultStrokeSize);
-        JPanel strokePanel = new JPanel();
+        strokePanel = new JPanel();
         leftPanel.add(strokePanel);
 
         SpinnerNumberModel numModel = new SpinnerNumberModel(defaultStrokeSize, 1, 15, 1);
-        JSpinner spinner = new JSpinner(numModel);
+        spinner = new JSpinner(numModel);
         strokePanel.add(spinner);
 
         spinner.addChangeListener((ChangeEvent e) -> {
@@ -91,28 +105,29 @@ public class View extends JFrame implements Observer {
         /********************
          * Playback Controls
          ********************/
-        JPanel playbackPanel = new JPanel();
+        playbackPanel = new JPanel();
         this.add(playbackPanel, BorderLayout.SOUTH);
 
         playbackPanel.setBackground(Color.red);
 
         //Play button
-        JButton playButton = new JButton("Play");
+        playButton = new JButton("Play");
         playbackPanel.add(playButton);
 
         //Slider
-        JSlider slider = new JSlider();
-        playbackPanel.add(slider);
-
-        slider.setEnabled(false);
+        playSlider = new JSlider();
+        playbackPanel.add(playSlider);
 
         //Start button
-        JButton startButton = new JButton("Start");
+        startButton = new JButton("Start");
         playbackPanel.add(startButton);
 
         //End button
-        JButton endButton = new JButton("End");
+        endButton = new JButton("End");
         playbackPanel.add(endButton);
+
+        playEnabled = true; //This is true to ensure the toggle happens
+        setPlayEnabled(false);
 
         /********************
          * Drawing Area
@@ -120,7 +135,7 @@ public class View extends JFrame implements Observer {
         canvas = new BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB);
         model.setGraphics(canvas.createGraphics());
 
-        JPanel drawPanel = new JPanel() {
+        drawPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -140,8 +155,6 @@ public class View extends JFrame implements Observer {
                 float scaleH = (float)canvasH / pH;
 
                 model.strokeStart(currentColor, currentStroke, (int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
-
-                drawPanel.repaint();
             }
         });
 
@@ -154,8 +167,13 @@ public class View extends JFrame implements Observer {
                 float scaleH = (float)canvasH / pH;
 
                 model.strokeContinue(currentColor, currentStroke, (int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
+            }
+        });
 
-                drawPanel.repaint();
+        drawPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                model.strokeEnd();
             }
         });
 
@@ -167,12 +185,31 @@ public class View extends JFrame implements Observer {
         setVisible(true);
     }
 
+    public void setPlayEnabled(boolean bool) {
+        if (playEnabled != bool) {
+            playButton.setEnabled(bool);
+            playSlider.setEnabled(bool);
+            startButton.setEnabled(bool);
+            endButton.setEnabled(bool);
+
+            playEnabled = bool;
+        }
+    }
+
     /**
      * Update with data from the model.
      */
     public void update(Object observable) {
-        // XXX Fill this in with the logic for updating the view when the model
-        // changes.
+        drawPanel.repaint();
+
+        int strokeCount = model.getStrokeCount();
+
+        setPlayEnabled(strokeCount > 0); //enable playback if there are strokes
+
+        if (strokeCount > 0) {
+            //TODO: Update ticks here
+        }
+
         System.out.println("Model changed!");
     }
 

@@ -8,12 +8,14 @@ public class Model {
     private List<Observer> observers;
     private Graphics2D gc;
     private int oldX, oldY;
+    private int strokeCount;
 
     /**
      * Create a new model.
      */
     public Model() {
         this.observers = new ArrayList();
+        this.strokeCount = 0;
     }
 
     /**
@@ -50,6 +52,8 @@ public class Model {
 
         oldX = x;
         oldY = y;
+
+        notifyObservers();
     }
 
     public void strokeContinue(Color color, Stroke stroke, int x, int y) {
@@ -59,5 +63,17 @@ public class Model {
 
         oldX = x;
         oldY = y;
+
+        notifyObservers();
+    }
+
+    public void strokeEnd() {
+        strokeCount++;
+
+        notifyObservers();
+    }
+
+    public int getStrokeCount() {
+        return strokeCount;
     }
 }
