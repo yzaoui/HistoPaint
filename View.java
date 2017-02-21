@@ -17,13 +17,7 @@ public class View extends JFrame implements Observer {
     private JPanel leftPanel;
     private ViewColorPalette colorPanel;
     private ViewStrokeControl strokePanel;
-
-    private JPanel playbackPanel;
-    private boolean playEnabled;
-    private JButton playButton;
-    private JSlider playSlider;
-    private JButton startButton;
-    private JButton endButton;
+    private ViewPlaybackControls playbackPanel;
 
     /**
      * Create a new View.
@@ -68,45 +62,22 @@ public class View extends JFrame implements Observer {
          * Color Picker
          ********************/
         colorPanel = new ViewColorPalette(model);
+        model.addObserver(colorPanel);
         leftPanel.add(colorPanel);
 
         /********************
          * Stroke Thickness
          ********************/
         strokePanel = new ViewStrokeControl(model);
+        model.addObserver(strokePanel);
         leftPanel.add(strokePanel);
 
         /********************
          * Playback Controls
          ********************/
-        playbackPanel = new JPanel();
-        this.add(playbackPanel, BorderLayout.SOUTH);
-
-        playbackPanel.setLayout(new BoxLayout(playbackPanel, BoxLayout.X_AXIS));
-        playbackPanel.setBackground(Color.red);
-
-        //Play button
-        playButton = new JButton("Play");
-        playbackPanel.add(playButton);
-
-        //Slider
-        playSlider = new JSlider(0, 0);
-        playbackPanel.add(playSlider);
-
-        playSlider.setPaintTicks(true);
-        playSlider.setMajorTickSpacing(1);
-        playSlider.setSnapToTicks(true);
-
-        //Start button
-        startButton = new JButton("Start");
-        playbackPanel.add(startButton);
-
-        //End button
-        endButton = new JButton("End");
-        playbackPanel.add(endButton);
-
-        playEnabled = true; //This is true to ensure the toggle happens
-        setPlayEnabled(false);
+        playbackPanel = new ViewPlaybackControls(model);
+        model.addObserver(playbackPanel);
+        this.add(playbackPanel, BorderLayout.SOUTH);;
 
         /********************
          * Drawing Area
@@ -164,36 +135,10 @@ public class View extends JFrame implements Observer {
         setVisible(true);
     }
 
-    public void setPlayEnabled(boolean bool) {
-        if (playEnabled != bool) {
-            playButton.setEnabled(bool);
-            playSlider.setEnabled(bool);
-            startButton.setEnabled(bool);
-            endButton.setEnabled(bool);
-
-            playEnabled = bool;
-        }
-    }
-
     /**
      * Update with data from the model.
      */
     public void update(Object observable) {
         drawPanel.repaint();
-
-        int strokeCount = model.getStrokeCount();
-
-        setPlayEnabled(strokeCount > 0); //enable playback if there are strokes
-
-        if (strokeCount > 0) {
-            updatePlaySlider(strokeCount);
-        }
-    }
-
-    public void updatePlaySlider(int strokeCount) {
-        if (strokeCount != playSlider.getMaximum()) {
-            playSlider.setMaximum(strokeCount);
-            playSlider.setValue(playSlider.getMaximum());
-        }
     }
 }
