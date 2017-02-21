@@ -16,7 +16,7 @@ public class View extends JFrame implements Observer {
     private JPanel drawPanel;
 
     private JPanel leftPanel;
-    private JPanel colorPanel;
+    private ViewColorPalette colorPanel;
     private JPanel strokePanel;
     private JSpinner spinner;
 
@@ -69,15 +69,8 @@ public class View extends JFrame implements Observer {
         /********************
          * Color Picker
          ********************/
-        colorPanel = new JPanel();
+        colorPanel = new ViewColorPalette(model);
         leftPanel.add(colorPanel);
-
-        colorPanel.setBackground(Color.blue);
-
-        colorPanel.add(new ColorButton(Color.red));
-        colorPanel.add(new ColorButton(Color.blue));
-        colorPanel.add(new ColorButton(Color.black));
-        colorPanel.add(new ColorButton(Color.yellow));
 
         /********************
          * Stroke Thickness
@@ -213,17 +206,6 @@ public class View extends JFrame implements Observer {
         if (strokeCount != playSlider.getMaximum()) {
             playSlider.setMaximum(strokeCount);
             playSlider.setValue(playSlider.getMaximum());
-        }
-    }
-
-    public class ColorButton extends JButton {
-        public ColorButton(Color bg) {
-            this.setPreferredSize(new Dimension(20, 20));
-            this.setBackground(bg);
-
-            this.addActionListener((ActionEvent e) -> {
-                View.this.model.setColor(bg);
-            });
         }
     }
 }
