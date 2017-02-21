@@ -9,12 +9,9 @@ public class View extends JFrame implements Observer {
 
     private Model model;
     private BufferedImage canvas;
-    private Color currentColor;
-    private BasicStroke currentStroke;
 
     private static final int canvasW = 400;
     private static final int canvasH = 300;
-    private static final int defaultStrokeSize = 3;
 
     private JPanel drawPanel;
 
@@ -39,8 +36,6 @@ public class View extends JFrame implements Observer {
         this.setMinimumSize(new Dimension(128, 128));
         this.setSize(800, 600);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        this.currentColor = Color.black;
 
         /********************
          * Set up the menu bar
@@ -87,17 +82,17 @@ public class View extends JFrame implements Observer {
         /********************
          * Stroke Thickness
          ********************/
-        this.currentStroke = new BasicStroke(defaultStrokeSize);
         strokePanel = new JPanel();
         leftPanel.add(strokePanel);
 
-        SpinnerNumberModel numModel = new SpinnerNumberModel(defaultStrokeSize, 1, 15, 1);
+        SpinnerNumberModel numModel = new SpinnerNumberModel(model.getStrokeWidth(), 1, 15, 1);
         spinner = new JSpinner(numModel);
         strokePanel.add(spinner);
 
         spinner.addChangeListener((ChangeEvent e) -> {
-            int newStrokeWidth = (int)numModel.getValue();
-            currentStroke = new BasicStroke(newStrokeWidth);
+            int newStrokeWidth = numModel.getNumber().intValue();
+
+            model.setStrokeWidth(newStrokeWidth);
         });
 
         /********************
@@ -157,7 +152,7 @@ public class View extends JFrame implements Observer {
                 float scaleW = (float)canvasW / pW;
                 float scaleH = (float)canvasH / pH;
 
-                model.strokeStart(currentColor, currentStroke, (int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
+                model.strokeStart((int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
             }
         });
 
@@ -169,7 +164,7 @@ public class View extends JFrame implements Observer {
                 float scaleW = (float)canvasW / pW;
                 float scaleH = (float)canvasH / pH;
 
-                model.strokeContinue(currentColor, currentStroke, (int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
+                model.strokeContinue((int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
             }
         });
 
@@ -227,7 +222,7 @@ public class View extends JFrame implements Observer {
             this.setBackground(bg);
 
             this.addActionListener((ActionEvent e) -> {
-                currentColor = bg;
+                View.this.model.setColor(bg);
             });
         }
     }

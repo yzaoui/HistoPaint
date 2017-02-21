@@ -9,6 +9,8 @@ public class Model {
     private Graphics2D gc;
     private int oldX, oldY;
     private int strokeCount;
+    private Color color;
+    private BasicStroke stroke;
 
     /**
      * Create a new model.
@@ -16,6 +18,8 @@ public class Model {
     public Model() {
         this.observers = new ArrayList();
         this.strokeCount = 0;
+        this.color = Color.black;
+        this.stroke = new BasicStroke(3);
     }
 
     /**
@@ -45,24 +49,24 @@ public class Model {
         gc = graphics;
     }
 
-    public void strokeStart(Color color, Stroke stroke, int x, int y) {
-        gc.setColor(color);
-        gc.setStroke(stroke);
+    public void strokeStart(int x, int y) {
+        gc.setColor(this.color);
+        gc.setStroke(this.stroke);
         gc.drawLine(x, y, x, y);
 
-        oldX = x;
-        oldY = y;
+        this.oldX = x;
+        this.oldY = y;
 
         notifyObservers();
     }
 
-    public void strokeContinue(Color color, Stroke stroke, int x, int y) {
-        gc.setColor(color);
-        gc.setStroke(stroke);
-        gc.drawLine(oldX, oldY, x, y);
+    public void strokeContinue(int x, int y) {
+        gc.setColor(this.color);
+        gc.setStroke(this.stroke);
+        gc.drawLine(this.oldX, this.oldY, x, y);
 
-        oldX = x;
-        oldY = y;
+        this.oldX = x;
+        this.oldY = y;
 
         notifyObservers();
     }
@@ -70,6 +74,20 @@ public class Model {
     public void strokeEnd() {
         strokeCount++;
 
+        notifyObservers();
+    }
+
+    public float getStrokeWidth() {
+        return stroke.getLineWidth();
+    }
+
+    public void setStrokeWidth(int newStrokeWidth) {
+        this.stroke = new BasicStroke(newStrokeWidth);
+        notifyObservers();
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
         notifyObservers();
     }
 
