@@ -1,23 +1,15 @@
-
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.awt.*;
 import javax.swing.*;
 
 public class View extends JFrame implements Observer {
 
     private Model model;
-    private BufferedImage canvas;
-
-    private static final int canvasW = 400;
-    private static final int canvasH = 300;
-
-    private JPanel drawPanel;
 
     private JPanel leftPanel;
     private ViewColorPalette colorPanel;
     private ViewStrokeControl strokePanel;
     private ViewPlaybackControls playbackPanel;
+    private ViewCanvas drawPanel;
 
     /**
      * Create a new View.
@@ -82,50 +74,9 @@ public class View extends JFrame implements Observer {
         /********************
          * Drawing Area
          ********************/
-        canvas = new BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB);
-        model.setGraphics(canvas.createGraphics());
-
-        drawPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(canvas, 0, 0, getWidth(), getHeight(), this);
-            }
-        };
+        drawPanel = new ViewCanvas(model);
+        model.addObserver(drawPanel);
         this.add(drawPanel, BorderLayout.CENTER);
-
-        drawPanel.setBackground(Color.white);
-
-        drawPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                int pW = drawPanel.getWidth();
-                int pH = drawPanel.getHeight();
-                float scaleW = (float)canvasW / pW;
-                float scaleH = (float)canvasH / pH;
-
-                model.strokeStart((int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
-            }
-        });
-
-        drawPanel.addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                int pW = drawPanel.getWidth();
-                int pH = drawPanel.getHeight();
-                float scaleW = (float)canvasW / pW;
-                float scaleH = (float)canvasH / pH;
-
-                model.strokeContinue((int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
-            }
-        });
-
-        drawPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                model.strokeEnd();
-            }
-        });
 
         // Hook up this observer so that it will be notified when the model
         // changes.
@@ -138,7 +89,5 @@ public class View extends JFrame implements Observer {
     /**
      * Update with data from the model.
      */
-    public void update(Object observable) {
-        drawPanel.repaint();
-    }
+    public void update(Object observable) {}
 }
