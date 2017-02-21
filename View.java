@@ -3,7 +3,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.*;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
 
 public class View extends JFrame implements Observer {
 
@@ -17,8 +16,7 @@ public class View extends JFrame implements Observer {
 
     private JPanel leftPanel;
     private ViewColorPalette colorPanel;
-    private JPanel strokePanel;
-    private JSpinner spinner;
+    private ViewStrokeControl strokePanel;
 
     private JPanel playbackPanel;
     private boolean playEnabled;
@@ -75,18 +73,8 @@ public class View extends JFrame implements Observer {
         /********************
          * Stroke Thickness
          ********************/
-        strokePanel = new JPanel();
+        strokePanel = new ViewStrokeControl(model);
         leftPanel.add(strokePanel);
-
-        SpinnerNumberModel numModel = new SpinnerNumberModel(model.getStrokeWidth(), 1, 15, 1);
-        spinner = new JSpinner(numModel);
-        strokePanel.add(spinner);
-
-        spinner.addChangeListener((ChangeEvent e) -> {
-            int newStrokeWidth = numModel.getNumber().intValue();
-
-            model.setStrokeWidth(newStrokeWidth);
-        });
 
         /********************
          * Playback Controls

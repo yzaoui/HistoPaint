@@ -7,6 +7,7 @@ public class ViewColorPalette extends JPanel implements Observer {
 
     public ViewColorPalette(Model model) {
         this.model = model;
+
         this.setBackground(Color.blue);
 
         this.add(new ColorButton(Color.red));
@@ -15,9 +16,7 @@ public class ViewColorPalette extends JPanel implements Observer {
         this.add(new ColorButton(Color.yellow));
     }
 
-    public void update(Object observable) {
-
-    }
+    public void update(Object observable) {}
 
     public class ColorButton extends JButton {
         public ColorButton(Color bg) {
