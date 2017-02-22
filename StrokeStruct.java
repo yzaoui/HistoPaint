@@ -19,6 +19,14 @@ public class StrokeStruct implements Iterable<StrokeStruct.Point> {
         points.push(new Point(x, y));
     }
 
+    public Color getColor() {
+        return this.color;
+    }
+
+    public Stroke getStroke() {
+        return this.stroke;
+    }
+
     @Override
     public Iterator<StrokeStruct.Point> iterator() {
         return points.iterator();

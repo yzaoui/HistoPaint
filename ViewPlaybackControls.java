@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import java.awt.*;
 
 public class ViewPlaybackControls extends JPanel implements Observer {
@@ -8,12 +9,14 @@ public class ViewPlaybackControls extends JPanel implements Observer {
     private JSlider playSlider;
     private JButton startButton;
     private JButton endButton;
+    private boolean shouldCallChange;
 
     public ViewPlaybackControls(Model model) {
         this.model = model;
 
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         this.setBackground(Color.red);
+        this.shouldCallChange = true;
 
         //Play button
         playButton = new JButton("Play");
@@ -26,6 +29,11 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         playSlider.setPaintTicks(true);
         playSlider.setMajorTickSpacing(1);
         playSlider.setSnapToTicks(true);
+        playSlider.addChangeListener((ChangeEvent e) -> {
+            if (shouldCallChange) {
+                model.setStrokeIndex(playSlider.getValue());
+            }
+        });
 
         //Start button
         startButton = new JButton("Start");
@@ -52,8 +60,12 @@ public class ViewPlaybackControls extends JPanel implements Observer {
 
     public void updatePlaySlider(int strokeCount) {
         if (strokeCount != playSlider.getMaximum()) {
+            shouldCallChange = false;
+
             playSlider.setMaximum(strokeCount);
             playSlider.setValue(playSlider.getMaximum());
+
+            shouldCallChange = true;
         }
     }
 

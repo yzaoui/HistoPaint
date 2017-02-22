@@ -7,11 +7,13 @@ public class Model {
     /** The observers that are watching this model for changes. */
     private List<Observer> observers;
     private Graphics2D gc;
+    private int canvasW, canvasH;
     private int oldX, oldY;
     private int strokeCount;
     private Color color;
     private BasicStroke stroke;
     private ArrayList<StrokeStruct> strokeRecords;
+    private int strokeIndex;
 
     /**
      * Create a new model.
@@ -22,6 +24,7 @@ public class Model {
         this.color = Color.black;
         this.stroke = new BasicStroke(3);
         this.strokeRecords = new ArrayList<>();
+        this.strokeIndex = 0;
     }
 
     /**
@@ -47,8 +50,10 @@ public class Model {
         }
     }
 
-    public void setGraphics(Graphics2D graphics) {
-        gc = graphics;
+    public void setGraphics(Graphics2D graphics, int width, int height) {
+        this.gc = graphics;
+        this.canvasW = width;
+        this.canvasH = height;
     }
 
     public void strokeStart(int x, int y) {
@@ -58,6 +63,12 @@ public class Model {
 
         this.oldX = x;
         this.oldY = y;
+
+        //If not at the end, overwrite existing suffix array
+        if (strokeIndex != strokeCount) {
+            this.strokeRecords.subList(strokeIndex, strokeCount).clear();
+            strokeCount = strokeIndex;
+        }
 
         this.strokeRecords.add(new StrokeStruct(x, y, this.color, this.stroke));
 
@@ -72,13 +83,38 @@ public class Model {
         this.oldX = x;
         this.oldY = y;
 
-        this.strokeRecords.get(this.strokeRecords.size() - 1).pushPoint(x, y);
+        this.strokeRecords.get(strokeIndex).pushPoint(x, y);
 
         notifyObservers();
     }
 
     public void strokeEnd() {
         strokeCount++;
+        strokeIndex++;
+
+        notifyObservers();
+    }
+
+    public void setStrokeIndex(int index) {
+        this.strokeIndex = index;
+
+        gc.setColor(Color.white);
+        gc.fillRect(0, 0, canvasW, canvasH);
+
+        for (int i = 0; i < strokeIndex; i++) {
+            StrokeStruct str = strokeRecords.get(i);
+            gc.setColor(str.getColor());
+            gc.setStroke(str.getStroke());
+
+            int oldX = str.iterator().next().getX();
+            int oldY = str.iterator().next().getY();
+
+            for (StrokeStruct.Point p : str) {
+                gc.drawLine(oldX, oldY, p.getX(), p.getY());
+                oldX = p.getX();
+                oldY = p.getY();
+            }
+        }
 
         notifyObservers();
     }
