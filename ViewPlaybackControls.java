@@ -28,11 +28,9 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         this.add(playSlider);
 
         playSlider.setPaintTicks(true);
-        playSlider.setMajorTickSpacing(1);
-        playSlider.setSnapToTicks(true);
         playSlider.addChangeListener((ChangeEvent e) -> {
             if (shouldCallChange) {
-                model.setStrokeIndex(playSlider.getValue());
+                model.setPointIndex(playSlider.getValue());
             }
         });
 
@@ -40,13 +38,13 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         startButton = new JButton("Start");
         this.add(startButton);
 
-        startButton.addActionListener((ActionEvent e) -> model.setStrokeIndex(0));
+        startButton.addActionListener((ActionEvent e) -> model.setPointIndex(0));
 
         //End button
         endButton = new JButton("End");
         this.add(endButton);
 
-        endButton.addActionListener((ActionEvent e) -> model.setStrokeIndex(model.getStrokeCount()));
+        endButton.addActionListener((ActionEvent e) -> model.setPointIndex(playSlider.getMaximum()));
 
         //Disable playback controls
         playEnabled = true; //This is true to ensure the toggle happens
@@ -65,17 +63,16 @@ public class ViewPlaybackControls extends JPanel implements Observer {
     }
 
     public void update(Object observable) {
+        int numPoints = model.getStrokeCount() * model.getPointsPerStroke();
         //Only update if there are strokes
-        if (model.getStrokeCount() > 0) {
+        if (numPoints > 0) {
             shouldCallChange = false;
 
             setPlayEnabled(true);
 
-            if (model.getStrokeCount() != playSlider.getMaximum()) {
-                playSlider.setMaximum(model.getStrokeCount());
-            }
-
-            playSlider.setValue(model.getStrokeIndex());
+            playSlider.setMaximum(numPoints);
+            playSlider.setValue(model.getPointIndex());
+            playSlider.setMajorTickSpacing(model.getPointsPerStroke());
 
             shouldCallChange = true;
         }

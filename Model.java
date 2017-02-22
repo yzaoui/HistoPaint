@@ -9,11 +9,14 @@ public class Model {
     private Graphics2D gc;
     private int canvasW, canvasH;
     private int oldX, oldY;
-    private int strokeCount;
     private Color color;
     private BasicStroke stroke;
     private ArrayList<StrokeStruct> strokeRecords;
     private int strokeIndex;
+    private int strokeCount;
+    private int pointIndex;
+    private int pointCount;
+    private int maxPointsPerStroke;
 
     /**
      * Create a new model.
@@ -25,6 +28,10 @@ public class Model {
         this.stroke = new BasicStroke(3);
         this.strokeRecords = new ArrayList<>();
         this.strokeIndex = 0;
+        this.strokeCount = 0;
+        this.pointIndex = 0;
+        this.pointCount = 0;
+        this.maxPointsPerStroke = 0;
     }
 
     /**
@@ -65,8 +72,10 @@ public class Model {
         this.oldY = y;
 
         //If not at the end, overwrite existing suffix array
-        if (strokeIndex != strokeCount) {
-            this.strokeRecords.subList(strokeIndex, strokeCount).clear();
+        if (pointIndex != pointCount) {
+            List<StrokeStruct.Point> points = strokeRecords.get(strokeIndex).getPoints();
+            points.subList((pointIndex - strokeIndex * maxPointsPerStroke), points.size()).clear();
+            this.strokeRecords.subList(strokeIndex + 1, strokeCount).clear();
         }
 
         this.strokeRecords.add(new StrokeStruct(x, y, this.color, this.stroke));
@@ -91,35 +100,59 @@ public class Model {
         strokeIndex++;
         strokeCount = strokeRecords.size();
 
-        notifyObservers();
-    }
-
-    public int getStrokeIndex() {
-        return strokeIndex;
-    }
-
-    public void setStrokeIndex(int index) {
-        this.strokeIndex = index;
-
-        gc.setColor(Color.white);
-        gc.fillRect(0, 0, canvasW, canvasH);
-
-        for (int i = 0; i < strokeIndex; i++) {
-            StrokeStruct str = strokeRecords.get(i);
-            gc.setColor(str.getColor());
-            gc.setStroke(str.getStroke());
-
-            int oldX = str.iterator().next().getX();
-            int oldY = str.iterator().next().getY();
-
-            for (StrokeStruct.Point p : str) {
-                gc.drawLine(oldX, oldY, p.getX(), p.getY());
-                oldX = p.getX();
-                oldY = p.getY();
+        int maxDelta = 0;
+        for (StrokeStruct str : strokeRecords) {
+            int pointsInStroke = str.getPoints().size();
+            if (pointsInStroke > maxDelta) {
+                maxDelta = pointsInStroke;
             }
         }
+        maxPointsPerStroke = maxDelta;
+        pointIndex = strokeIndex * maxPointsPerStroke;
+        pointCount = pointIndex;
 
         notifyObservers();
+    }
+
+    public int getPointIndex() {
+        return pointIndex;
+    }
+
+    public void setPointIndex(int index) {
+        if (index != this.pointIndex) { //Avoid redrawing, not too necessary
+            gc.setColor(Color.white);
+            gc.fillRect(0, 0, canvasW, canvasH);
+
+            this.pointIndex = index;
+            if (index == 0) {
+                this.strokeIndex = index;
+            } else { //If there's anything to draw
+                this.strokeIndex = (this.pointIndex - 1) / maxPointsPerStroke + 1;
+
+                for (int i = 0; i < strokeIndex; i++) {
+                    StrokeStruct str = strokeRecords.get(i);
+                    gc.setColor(str.getColor());
+                    gc.setStroke(str.getStroke());
+
+                    //This is guaranteed to be a valid integer index in this stroke
+                    int relativeEndPointIndex = (int)(Math.min(maxPointsPerStroke, pointIndex - i*maxPointsPerStroke) * str.getPoints().size() * 1.0 / maxPointsPerStroke);
+                    List<StrokeStruct.Point> points = str.getPoints().subList(0, relativeEndPointIndex);
+
+                    if (points.size() > 0) {
+                        int oldX = points.get(0).getX();
+                        int oldY = points.get(0).getY();
+
+                        for (StrokeStruct.Point p : points) {
+                            gc.drawLine(oldX, oldY, p.getX(), p.getY());
+                            oldX = p.getX();
+                            oldY = p.getY();
+                        }
+                    }
+                }
+            }
+
+            notifyObservers();
+        }
     }
 
     public float getStrokeWidth() {
@@ -138,5 +171,9 @@ public class Model {
 
     public int getStrokeCount() {
         return strokeCount;
+    }
+
+    public int getPointsPerStroke() {
+        return maxPointsPerStroke;
     }
 }

@@ -1,22 +1,23 @@
 import java.awt.*;
 import java.util.Iterator;
-import java.util.Stack;
+import java.util.List;
+import java.util.ArrayList;
 
 public class StrokeStruct implements Iterable<StrokeStruct.Point> {
     private Stroke stroke;
     private Color color;
-    private Stack<Point> points;
+    private ArrayList<Point> points;
 
     public StrokeStruct(int x, int y, Color color, Stroke stroke) {
         this.color = color;
         this.stroke = stroke;
 
-        this.points = new Stack<>();
+        this.points = new ArrayList<>();
         this.pushPoint(x, y);
     }
 
     public void pushPoint(int x, int y) {
-        points.push(new Point(x, y));
+        points.add(new Point(x, y));
     }
 
     public Color getColor() {
@@ -25,6 +26,10 @@ public class StrokeStruct implements Iterable<StrokeStruct.Point> {
 
     public Stroke getStroke() {
         return this.stroke;
+    }
+
+    public List<StrokeStruct.Point> getPoints() {
+        return points;
     }
 
     @Override
