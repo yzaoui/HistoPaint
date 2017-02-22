@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 
 public class ViewPlaybackControls extends JPanel implements Observer {
     private Model model;
@@ -39,10 +40,15 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         startButton = new JButton("Start");
         this.add(startButton);
 
+        startButton.addActionListener((ActionEvent e) -> model.setStrokeIndex(0));
+
         //End button
         endButton = new JButton("End");
         this.add(endButton);
 
+        endButton.addActionListener((ActionEvent e) -> model.setStrokeIndex(model.getStrokeCount()));
+
+        //Disable playback controls
         playEnabled = true; //This is true to ensure the toggle happens
         setPlayEnabled(false);
     }
@@ -58,24 +64,20 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         }
     }
 
-    public void updatePlaySlider(int strokeCount) {
-        if (strokeCount != playSlider.getMaximum()) {
+    public void update(Object observable) {
+        //Only update if there are strokes
+        if (model.getStrokeCount() > 0) {
             shouldCallChange = false;
 
-            playSlider.setMaximum(strokeCount);
-            playSlider.setValue(playSlider.getMaximum());
+            setPlayEnabled(true);
+
+            if (model.getStrokeCount() != playSlider.getMaximum()) {
+                playSlider.setMaximum(model.getStrokeCount());
+            }
+
+            playSlider.setValue(model.getStrokeIndex());
 
             shouldCallChange = true;
-        }
-    }
-
-    public void update(Object observable) {
-        int strokeCount = model.getStrokeCount();
-
-        setPlayEnabled(strokeCount > 0); //enable playback if there are strokes
-
-        if (strokeCount > 0) {
-            updatePlaySlider(strokeCount);
         }
     }
 }

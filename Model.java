@@ -67,7 +67,6 @@ public class Model {
         //If not at the end, overwrite existing suffix array
         if (strokeIndex != strokeCount) {
             this.strokeRecords.subList(strokeIndex, strokeCount).clear();
-            strokeCount = strokeIndex;
         }
 
         this.strokeRecords.add(new StrokeStruct(x, y, this.color, this.stroke));
@@ -89,10 +88,14 @@ public class Model {
     }
 
     public void strokeEnd() {
-        strokeCount++;
         strokeIndex++;
+        strokeCount = strokeRecords.size();
 
         notifyObservers();
+    }
+
+    public int getStrokeIndex() {
+        return strokeIndex;
     }
 
     public void setStrokeIndex(int index) {
