@@ -11,6 +11,7 @@ public class Model {
     private int strokeCount;
     private Color color;
     private BasicStroke stroke;
+    private ArrayList<StrokeStruct> strokeRecords;
 
     /**
      * Create a new model.
@@ -20,6 +21,7 @@ public class Model {
         this.strokeCount = 0;
         this.color = Color.black;
         this.stroke = new BasicStroke(3);
+        this.strokeRecords = new ArrayList<>();
     }
 
     /**
@@ -57,6 +59,8 @@ public class Model {
         this.oldX = x;
         this.oldY = y;
 
+        this.strokeRecords.add(new StrokeStruct(x, y, this.color, this.stroke));
+
         notifyObservers();
     }
 
@@ -67,6 +71,8 @@ public class Model {
 
         this.oldX = x;
         this.oldY = y;
+
+        this.strokeRecords.get(this.strokeRecords.size() - 1).pushPoint(x, y);
 
         notifyObservers();
     }
