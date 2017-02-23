@@ -31,6 +31,9 @@ public class View extends JFrame implements Observer {
         JMenuBar menuBar = new JMenuBar();
         this.setJMenuBar(menuBar);
 
+        /********************
+         * Set up File menu
+         ********************/
         JMenu fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
 
@@ -61,6 +64,19 @@ public class View extends JFrame implements Observer {
 
         JMenuItem exit = new JMenuItem("Exit");
         fileMenu.add(exit);
+
+        /********************
+         * Set up Clipboard menu
+         ********************/
+        JMenu clipboardMenu = new JMenu("Clipboard");
+        menuBar.add(clipboardMenu);
+        JMenuItem copy = new JMenuItem("Copy");
+        clipboardMenu.add(copy);
+
+        copy.addActionListener((ActionEvent e) -> {
+            PaintingClipboard pc = new PaintingClipboard();
+            pc.copyImage(this.model.getBufferedImage());
+        });
 
         // Hook up this observer so that it will be notified when the model
         // changes.
