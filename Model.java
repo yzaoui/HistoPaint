@@ -1,14 +1,19 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Model {
+public class Model implements Serializable {
     /** The observers that are watching this model for changes. */
-    private List<Observer> observers;
-    private Graphics2D gc;
-    private BufferedImage img;
+    //Ties with Views are transient
+    private transient List<Observer> observers;
+    private transient Graphics2D gc;
+    private transient BufferedImage img;
+    private transient PlayTimer timer;
+    //Properties of the model
     private int canvasW, canvasH;
     private int oldX, oldY;
     private Color color;
@@ -19,7 +24,6 @@ public class Model {
     private int lineIndex;
     private int lineCount;
     private int maxLinesPerStroke;
-    private PlayTimer timer;
     private long lastUpdate;
     private double delay;
     private double excess;
@@ -30,7 +34,6 @@ public class Model {
      * Create a new model.
      */
     public Model() {
-        this.observers = new ArrayList();
         this.strokeCount = 0;
         this.color = Color.black;
         this.strokeWidth = 3;
@@ -40,8 +43,20 @@ public class Model {
         this.lineIndex = 0;
         this.lineCount = 0;
         this.maxLinesPerStroke = 0;
+        this.strokeStarted = false;
+        this.inCanvas = false;
         this.canvasW = 400;
         this.canvasH = 300;
+        this.initTransient();
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        this.initTransient();
+    }
+
+    private void initTransient() {
+        this.observers = new ArrayList();
         this.timer = new PlayTimer(0, (ActionEvent e) -> {
             int toSkip = 0; //Number of lines to skip
 
@@ -66,10 +81,9 @@ public class Model {
                 lastUpdate = System.currentTimeMillis();
             }
         });
-        this.strokeStarted = false;
-        this.inCanvas = false;
         this.img = new BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB);
         this.gc = this.img.createGraphics();
+        this.setLineIndex(this.lineIndex); //Do this because Graphics2d is not serializable
     }
 
     /**
@@ -171,7 +185,6 @@ public class Model {
     }
 
     public void setLineIndex(int index) {
-        if (index != this.lineIndex) { //Avoid redrawing, not too necessary
             gc.setColor(Color.white);
             gc.fillRect(0, 0, canvasW, canvasH);
 
@@ -199,7 +212,6 @@ public class Model {
             }
 
             notifyObservers();
-        }
     }
 
     public void playForward() {

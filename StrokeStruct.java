@@ -1,9 +1,10 @@
 import java.awt.*;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
-public class StrokeStruct implements Iterable<StrokeStruct.Line> {
+public class StrokeStruct implements Iterable<StrokeStruct.Line>, Serializable {
     private int strokeWidth;
     private Color color;
     private ArrayList<Line> lines;
@@ -37,7 +38,7 @@ public class StrokeStruct implements Iterable<StrokeStruct.Line> {
         return lines.iterator();
     }
 
-    public class Line {
+    public class Line implements Serializable {
         int x1, y1, x2, y2;
 
         public Line(int x1, int y1, int x2, int y2) {
