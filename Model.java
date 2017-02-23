@@ -73,9 +73,11 @@ public class Model {
 
         //If not at the end, overwrite existing suffix array
         if (pointIndex != pointCount) {
-            List<StrokeStruct.Point> points = strokeRecords.get(strokeIndex).getPoints();
-            points.subList((pointIndex - strokeIndex * maxPointsPerStroke), points.size()).clear();
-            this.strokeRecords.subList(strokeIndex + 1, strokeCount).clear();
+            if (pointIndex > 0) {
+                List<StrokeStruct.Point> points = strokeRecords.get(strokeIndex - 1).getPoints();
+                points.subList((int)((pointIndex - (strokeIndex - 1) * maxPointsPerStroke) * ((double)points.size() / maxPointsPerStroke)), points.size()).clear();
+            }
+            this.strokeRecords.subList(strokeIndex, strokeCount).clear();
         }
 
         this.strokeRecords.add(new StrokeStruct(x, y, this.color, this.stroke));
