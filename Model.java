@@ -21,6 +21,7 @@ public class Model {
     private long lastUpdate;
     private double delay;
     private double excess;
+    private boolean strokeStarted;
 
     /**
      * Create a new model.
@@ -60,6 +61,7 @@ public class Model {
                 lastUpdate = System.currentTimeMillis();
             }
         });
+        this.strokeStarted = false;
     }
 
     /**
@@ -92,6 +94,7 @@ public class Model {
     }
 
     public void strokeStart(int x, int y) {
+        if (this.isPlaying()) { return; } //Disallow drawing during playback
         gc.setColor(this.color);
         gc.setStroke(this.stroke);
         gc.drawLine(x, y, x, y);
@@ -109,11 +112,13 @@ public class Model {
         }
 
         this.strokeRecords.add(new StrokeStruct(x, y, this.color, this.stroke));
+        this.strokeStarted = true;
 
         notifyObservers();
     }
 
     public void strokeContinue(int x, int y) {
+        if (!strokeStarted) { return; }
         gc.setColor(this.color);
         gc.setStroke(this.stroke);
         gc.drawLine(this.oldX, this.oldY, x, y);
@@ -127,6 +132,7 @@ public class Model {
     }
 
     public void strokeEnd() {
+        if (!strokeStarted) { return; }
         strokeIndex++;
         strokeCount = strokeRecords.size();
 
@@ -140,6 +146,8 @@ public class Model {
         maxPointsPerStroke = maxDelta;
         pointIndex = strokeIndex * maxPointsPerStroke;
         pointCount = pointIndex;
+
+        this.strokeStarted = false;
 
         notifyObservers();
     }

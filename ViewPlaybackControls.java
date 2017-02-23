@@ -8,8 +8,8 @@ public class ViewPlaybackControls extends JPanel implements Observer {
     private boolean playEnabled;
     private PlayButton playButton;
     private JSlider playSlider;
-    private JButton startButton;
-    private JButton endButton;
+    private StartButton startButton;
+    private EndButton endButton;
     private boolean shouldCallChange;
 
     public ViewPlaybackControls(Model model) {
@@ -18,12 +18,6 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         this.setBackground(Color.red);
         this.shouldCallChange = true;
-
-        //Play button
-        playButton = new PlayButton(
-                (ActionEvent e) ->  model.playForward(),
-                (ActionEvent e) ->  model.stopPlayback());
-        this.add(playButton);
 
         //Slider
         playSlider = new JSlider(0, 0);
@@ -37,16 +31,18 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         });
 
         //Start button
-        startButton = new JButton("Start");
+        startButton = new StartButton((ActionEvent e) -> model.setPointIndex(0));
         this.add(startButton);
 
-        startButton.addActionListener((ActionEvent e) -> model.setPointIndex(0));
+        //Play button
+        playButton = new PlayButton(
+                (ActionEvent e) ->  model.playForward(),
+                (ActionEvent e) ->  model.stopPlayback());
+        this.add(playButton);
 
         //End button
-        endButton = new JButton("End");
+        endButton = new EndButton((ActionEvent e) -> model.setPointIndex(playSlider.getMaximum()));
         this.add(endButton);
-
-        endButton.addActionListener((ActionEvent e) -> model.setPointIndex(playSlider.getMaximum()));
 
         //Disable playback controls
         playEnabled = true; //This is true to ensure the toggle happens
