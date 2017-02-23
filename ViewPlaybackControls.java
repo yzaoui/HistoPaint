@@ -23,6 +23,10 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         playButton = new JButton("Play");
         this.add(playButton);
 
+        playButton.addActionListener((ActionEvent e) -> {
+            model.playForward();
+        });
+
         //Slider
         playSlider = new JSlider(0, 0);
         this.add(playSlider);
@@ -63,7 +67,7 @@ public class ViewPlaybackControls extends JPanel implements Observer {
     }
 
     public void update(Object observable) {
-        int numPoints = model.getStrokeCount() * model.getPointsPerStroke();
+        int numPoints = model.getPointCount();
         //Only update if there are strokes
         if (numPoints > 0) {
             shouldCallChange = false;

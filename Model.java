@@ -1,5 +1,5 @@
-
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +17,10 @@ public class Model {
     private int pointIndex;
     private int pointCount;
     private int maxPointsPerStroke;
+    private PlayTimer timer;
+    private long lastUpdate;
+    private double delay;
+    private double excess;
 
     /**
      * Create a new model.
@@ -32,6 +36,30 @@ public class Model {
         this.pointIndex = 0;
         this.pointCount = 0;
         this.maxPointsPerStroke = 0;
+        this.timer = new PlayTimer(0, (ActionEvent e) -> {
+            int toSkip = 0; //Number of points to skip
+
+            if (excess <= 0) { //If there is time debt
+                toSkip = -1 * (int)(excess / delay); //Skip as many cycles as there are in the debt
+                excess = excess % delay; //Remove all full cycles from debt
+            } else if (excess > delay) { //If there is time surplus
+                toSkip = -1; //Since the player should never go backwards, at most stay at current frame
+                excess -= delay; //Remove a cycle at a time from surplus
+            }
+            //Otherwise, there is not enough surplus for a cycle, so play normally
+
+            int index = Math.min(this.getPointIndex() + 1 + toSkip, this.getPointCount());
+            this.setPointIndex(index);
+
+            if (index >= this.getPointCount()) {
+                //If player is at the end, stop playback
+                timer.stop();
+            } else {
+                //Add surplus/debt since last frame
+                excess += delay - (int)(System.currentTimeMillis() - lastUpdate);
+                lastUpdate = System.currentTimeMillis();
+            }
+        });
     }
 
     /**
@@ -157,6 +185,14 @@ public class Model {
         }
     }
 
+    public void playForward() {
+        delay = 1000.0 / maxPointsPerStroke;
+        timer.setDelay((int)(delay + 0.5));
+        lastUpdate = System.currentTimeMillis();
+        excess = 0;
+        timer.start();
+    }
+
     public float getStrokeWidth() {
         return stroke.getLineWidth();
     }
@@ -171,11 +207,11 @@ public class Model {
         notifyObservers();
     }
 
-    public int getStrokeCount() {
-        return strokeCount;
-    }
-
     public int getPointsPerStroke() {
         return maxPointsPerStroke;
+    }
+
+    public int getPointCount() {
+        return strokeCount * maxPointsPerStroke;
     }
 }
