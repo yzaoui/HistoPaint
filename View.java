@@ -123,8 +123,10 @@ public class View extends JFrame implements Observer {
             oos.writeObject(this.model);
             oos.close();
         } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "File not found.\nCheck the file name and try again.", "File not found", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Invalid file animation. \nCheck the file and try again.", "Invalid file", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
@@ -139,10 +141,13 @@ public class View extends JFrame implements Observer {
             this.update(this.model);
             ois.close();
         } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "File not found.\nCheck the file name and try again.", "File not found", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Invalid file animation. \nCheck the file and try again.", "Invalid file", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "Animation not found. \nCheck the file and try again.", "Invalid file", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
