@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class StrokeStruct implements Iterable<StrokeStruct.Line> {
-    private Stroke stroke;
+    private int strokeWidth;
     private Color color;
     private ArrayList<Line> lines;
 
-    public StrokeStruct(int x, int y, Color color, Stroke stroke) {
+    public StrokeStruct(int x, int y, Color color, int strokeWidth) {
         this.color = color;
-        this.stroke = stroke;
+        this.strokeWidth = strokeWidth;
 
         this.lines = new ArrayList<>();
         this.pushLine(x, y, x, y);
@@ -24,8 +24,8 @@ public class StrokeStruct implements Iterable<StrokeStruct.Line> {
         return this.color;
     }
 
-    public Stroke getStroke() {
-        return this.stroke;
+    public int getStrokeWidth() {
+        return this.strokeWidth;
     }
 
     public List<StrokeStruct.Line> getLines() {

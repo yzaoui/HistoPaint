@@ -10,7 +10,7 @@ public class Model {
     private int canvasW, canvasH;
     private int oldX, oldY;
     private Color color;
-    private BasicStroke stroke;
+    private int strokeWidth;
     private ArrayList<StrokeStruct> strokeRecords;
     private int strokeIndex;
     private int strokeCount;
@@ -31,7 +31,7 @@ public class Model {
         this.observers = new ArrayList();
         this.strokeCount = 0;
         this.color = Color.black;
-        this.stroke = new BasicStroke(3);
+        this.strokeWidth = 3;
         this.strokeRecords = new ArrayList<>();
         this.strokeIndex = 0;
         this.strokeCount = 0;
@@ -98,7 +98,7 @@ public class Model {
     public void strokeStart(int x, int y) {
         if (this.isPlaying()) { return; } //Disallow drawing during playback
         gc.setColor(this.color);
-        gc.setStroke(this.stroke);
+        gc.setStroke(new BasicStroke(strokeWidth));
         gc.drawLine(x, y, x, y);
 
         this.oldX = x;
@@ -113,7 +113,7 @@ public class Model {
             this.strokeRecords.subList(strokeIndex, strokeCount).clear();
         }
 
-        this.strokeRecords.add(new StrokeStruct(x, y, this.color, this.stroke));
+        this.strokeRecords.add(new StrokeStruct(x, y, this.color, this.strokeWidth));
         this.strokeStarted = true;
         this.inCanvas = true;
 
@@ -131,8 +131,6 @@ public class Model {
             this.oldX = x;
             this.oldY = y;
         }
-        gc.setColor(this.color);
-        gc.setStroke(this.stroke);
         gc.drawLine(this.oldX, this.oldY, x, y);
 
         this.strokeRecords.get(strokeIndex).pushLine(this.oldX, this.oldY, x, y);
@@ -182,7 +180,7 @@ public class Model {
                 for (int i = 0; i < strokeIndex; i++) {
                     StrokeStruct str = strokeRecords.get(i);
                     gc.setColor(str.getColor());
-                    gc.setStroke(str.getStroke());
+                    gc.setStroke(new BasicStroke(str.getStrokeWidth()));
 
                     //This is guaranteed to be a valid integer index in this stroke
                     int relativeEndLineIndex = (int)(Math.min(maxLinesPerStroke, lineIndex - i* maxLinesPerStroke) * str.getLines().size() * 1.0 / maxLinesPerStroke);
@@ -217,11 +215,12 @@ public class Model {
     }
 
     public float getStrokeWidth() {
-        return stroke.getLineWidth();
+        return strokeWidth;
     }
 
-    public void setStrokeWidth(int newStrokeWidth) {
-        this.stroke = new BasicStroke(newStrokeWidth);
+    public void setStrokeWidth(int strokeWidth) {
+        this.strokeWidth = strokeWidth;
+
         notifyObservers();
     }
 
