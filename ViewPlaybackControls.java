@@ -26,12 +26,12 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         playSlider.setPaintTicks(true);
         playSlider.addChangeListener((ChangeEvent e) -> {
             if (shouldCallChange) {
-                model.setPointIndex(playSlider.getValue());
+                model.setLineIndex(playSlider.getValue());
             }
         });
 
         //Start button
-        startButton = new StartButton((ActionEvent e) -> model.setPointIndex(0));
+        startButton = new StartButton((ActionEvent e) -> model.setLineIndex(0));
         this.add(startButton);
 
         //Play button
@@ -41,7 +41,7 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         this.add(playButton);
 
         //End button
-        endButton = new EndButton((ActionEvent e) -> model.setPointIndex(playSlider.getMaximum()));
+        endButton = new EndButton((ActionEvent e) -> model.setLineIndex(playSlider.getMaximum()));
         this.add(endButton);
 
         //Disable playback controls
@@ -61,9 +61,9 @@ public class ViewPlaybackControls extends JPanel implements Observer {
     }
 
     public void update(Object observable) {
-        int numPoints = model.getPointCount();
+        int numLines = model.getLineCount();
         //Only update if there are strokes
-        if (numPoints > 0) {
+        if (numLines > 0) {
             shouldCallChange = false;
 
             setPlayEnabled(true);
@@ -74,9 +74,9 @@ public class ViewPlaybackControls extends JPanel implements Observer {
                 playButton.toPlayButton();
             }
 
-            playSlider.setMaximum(numPoints);
-            playSlider.setValue(model.getPointIndex());
-            playSlider.setMajorTickSpacing(model.getPointsPerStroke());
+            playSlider.setMaximum(numLines);
+            playSlider.setValue(model.getLineIndex());
+            playSlider.setMajorTickSpacing(model.getLinesPerStroke());
 
             shouldCallChange = true;
         }

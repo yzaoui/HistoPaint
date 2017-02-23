@@ -3,21 +3,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
-public class StrokeStruct implements Iterable<StrokeStruct.Point> {
+public class StrokeStruct implements Iterable<StrokeStruct.Line> {
     private Stroke stroke;
     private Color color;
-    private ArrayList<Point> points;
+    private ArrayList<Line> lines;
 
     public StrokeStruct(int x, int y, Color color, Stroke stroke) {
         this.color = color;
         this.stroke = stroke;
 
-        this.points = new ArrayList<>();
-        this.pushPoint(x, y);
+        this.lines = new ArrayList<>();
+        this.pushLine(x, y, x, y);
     }
 
-    public void pushPoint(int x, int y) {
-        points.add(new Point(x, y));
+    public void pushLine(int x1, int y1, int x2, int y2) {
+        lines.add(new Line(x1, y1, x2, y2));
     }
 
     public Color getColor() {
@@ -28,29 +28,39 @@ public class StrokeStruct implements Iterable<StrokeStruct.Point> {
         return this.stroke;
     }
 
-    public List<StrokeStruct.Point> getPoints() {
-        return points;
+    public List<StrokeStruct.Line> getLines() {
+        return lines;
     }
 
     @Override
-    public Iterator<StrokeStruct.Point> iterator() {
-        return points.iterator();
+    public Iterator<StrokeStruct.Line> iterator() {
+        return lines.iterator();
     }
 
-    public class Point {
-        int x, y;
+    public class Line {
+        int x1, y1, x2, y2;
 
-        public Point(int x, int y) {
-            this.x = x;
-            this.y = y;
+        public Line(int x1, int y1, int x2, int y2) {
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
         }
 
-        public int getX() {
-            return x;
+        public int getX1() {
+            return x1;
         }
 
-        public int getY() {
-            return y;
+        public int getY1() {
+            return y1;
+        }
+
+        public int getX2() {
+            return x2;
+        }
+
+        public int getY2() {
+            return y2;
         }
     }
 }

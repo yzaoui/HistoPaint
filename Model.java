@@ -14,14 +14,15 @@ public class Model {
     private ArrayList<StrokeStruct> strokeRecords;
     private int strokeIndex;
     private int strokeCount;
-    private int pointIndex;
-    private int pointCount;
-    private int maxPointsPerStroke;
+    private int lineIndex;
+    private int lineCount;
+    private int maxLinesPerStroke;
     private PlayTimer timer;
     private long lastUpdate;
     private double delay;
     private double excess;
     private boolean strokeStarted;
+    private boolean inCanvas;
 
     /**
      * Create a new model.
@@ -34,11 +35,11 @@ public class Model {
         this.strokeRecords = new ArrayList<>();
         this.strokeIndex = 0;
         this.strokeCount = 0;
-        this.pointIndex = 0;
-        this.pointCount = 0;
-        this.maxPointsPerStroke = 0;
+        this.lineIndex = 0;
+        this.lineCount = 0;
+        this.maxLinesPerStroke = 0;
         this.timer = new PlayTimer(0, (ActionEvent e) -> {
-            int toSkip = 0; //Number of points to skip
+            int toSkip = 0; //Number of lines to skip
 
             if (excess <= 0) { //If there is time debt
                 toSkip = -1 * (int)(excess / delay); //Skip as many cycles as there are in the debt
@@ -49,10 +50,10 @@ public class Model {
             }
             //Otherwise, there is not enough surplus for a cycle, so play normally
 
-            int index = Math.min(this.getPointIndex() + 1 + toSkip, this.getPointCount());
-            this.setPointIndex(index);
+            int index = Math.min(this.getLineIndex() + 1 + toSkip, this.getLineCount());
+            this.setLineIndex(index);
 
-            if (index >= this.getPointCount()) {
+            if (index >= this.getLineCount()) {
                 //If player is at the end, stop playback
                 this.stopPlayback();
             } else {
@@ -62,6 +63,7 @@ public class Model {
             }
         });
         this.strokeStarted = false;
+        this.inCanvas = false;
     }
 
     /**
@@ -103,30 +105,40 @@ public class Model {
         this.oldY = y;
 
         //If not at the end, overwrite existing suffix array
-        if (pointIndex != pointCount) {
-            if (pointIndex > 0) {
-                List<StrokeStruct.Point> points = strokeRecords.get(strokeIndex - 1).getPoints();
-                points.subList((int)((pointIndex - (strokeIndex - 1) * maxPointsPerStroke) * ((double)points.size() / maxPointsPerStroke)), points.size()).clear();
+        if (lineIndex != lineCount) {
+            if (lineIndex > 0) {
+                List<StrokeStruct.Line> lines = strokeRecords.get(strokeIndex - 1).getLines();
+                lines.subList((int)((lineIndex - (strokeIndex - 1) * maxLinesPerStroke) * ((double)lines.size() / maxLinesPerStroke)), lines.size()).clear();
             }
             this.strokeRecords.subList(strokeIndex, strokeCount).clear();
         }
 
         this.strokeRecords.add(new StrokeStruct(x, y, this.color, this.stroke));
         this.strokeStarted = true;
+        this.inCanvas = true;
 
         notifyObservers();
     }
 
     public void strokeContinue(int x, int y) {
-        if (!strokeStarted) { return; }
+        if (!strokeStarted) { return; } //If not in a legal stroke
+        if (!(x >= 0 && x < canvasW && y >= 0 && y < canvasH)) { //Only draw in canvas
+            this.inCanvas = false;
+            return;
+        }
+        if (!inCanvas) { //If just coming back from the outside, consider this like a new stroke
+            this.inCanvas = true;
+            this.oldX = x;
+            this.oldY = y;
+        }
         gc.setColor(this.color);
         gc.setStroke(this.stroke);
         gc.drawLine(this.oldX, this.oldY, x, y);
 
+        this.strokeRecords.get(strokeIndex).pushLine(this.oldX, this.oldY, x, y);
+
         this.oldX = x;
         this.oldY = y;
-
-        this.strokeRecords.get(strokeIndex).pushPoint(x, y);
 
         notifyObservers();
     }
@@ -138,34 +150,34 @@ public class Model {
 
         int maxDelta = 0;
         for (StrokeStruct str : strokeRecords) {
-            int pointsInStroke = str.getPoints().size();
-            if (pointsInStroke > maxDelta) {
-                maxDelta = pointsInStroke;
+            int linesInStroke = str.getLines().size();
+            if (linesInStroke > maxDelta) {
+                maxDelta = linesInStroke;
             }
         }
-        maxPointsPerStroke = maxDelta;
-        pointIndex = strokeIndex * maxPointsPerStroke;
-        pointCount = pointIndex;
+        maxLinesPerStroke = maxDelta;
+        lineIndex = strokeIndex * maxLinesPerStroke;
+        lineCount = lineIndex;
 
         this.strokeStarted = false;
 
         notifyObservers();
     }
 
-    public int getPointIndex() {
-        return pointIndex;
+    public int getLineIndex() {
+        return lineIndex;
     }
 
-    public void setPointIndex(int index) {
-        if (index != this.pointIndex) { //Avoid redrawing, not too necessary
+    public void setLineIndex(int index) {
+        if (index != this.lineIndex) { //Avoid redrawing, not too necessary
             gc.setColor(Color.white);
             gc.fillRect(0, 0, canvasW, canvasH);
 
-            this.pointIndex = index;
+            this.lineIndex = index;
             if (index == 0) {
                 this.strokeIndex = index;
             } else { //If there's anything to draw
-                this.strokeIndex = (this.pointIndex - 1) / maxPointsPerStroke + 1;
+                this.strokeIndex = (this.lineIndex - 1) / maxLinesPerStroke + 1;
 
                 for (int i = 0; i < strokeIndex; i++) {
                     StrokeStruct str = strokeRecords.get(i);
@@ -173,17 +185,12 @@ public class Model {
                     gc.setStroke(str.getStroke());
 
                     //This is guaranteed to be a valid integer index in this stroke
-                    int relativeEndPointIndex = (int)(Math.min(maxPointsPerStroke, pointIndex - i*maxPointsPerStroke) * str.getPoints().size() * 1.0 / maxPointsPerStroke);
-                    List<StrokeStruct.Point> points = str.getPoints().subList(0, relativeEndPointIndex);
+                    int relativeEndLineIndex = (int)(Math.min(maxLinesPerStroke, lineIndex - i* maxLinesPerStroke) * str.getLines().size() * 1.0 / maxLinesPerStroke);
+                    List<StrokeStruct.Line> lines = str.getLines().subList(0, relativeEndLineIndex);
 
-                    if (points.size() > 0) {
-                        int oldX = points.get(0).getX();
-                        int oldY = points.get(0).getY();
-
-                        for (StrokeStruct.Point p : points) {
-                            gc.drawLine(oldX, oldY, p.getX(), p.getY());
-                            oldX = p.getX();
-                            oldY = p.getY();
+                    if (lines.size() > 0) {
+                        for (StrokeStruct.Line l : lines) {
+                            gc.drawLine(l.getX1(), l.getY1(), l.getX2(), l.getY2());
                         }
                     }
                 }
@@ -194,7 +201,7 @@ public class Model {
     }
 
     public void playForward() {
-        delay = 1000.0 / maxPointsPerStroke;
+        delay = 1000.0 / maxLinesPerStroke;
         timer.setDelay((int)(delay + 0.5));
         lastUpdate = System.currentTimeMillis();
         excess = 0;
@@ -223,12 +230,12 @@ public class Model {
         notifyObservers();
     }
 
-    public int getPointsPerStroke() {
-        return maxPointsPerStroke;
+    public int getLinesPerStroke() {
+        return maxLinesPerStroke;
     }
 
-    public int getPointCount() {
-        return strokeCount * maxPointsPerStroke;
+    public int getLineCount() {
+        return strokeCount * maxLinesPerStroke;
     }
 
     public boolean isPlaying() {
