@@ -6,7 +6,7 @@ import java.awt.event.ActionEvent;
 public class ViewPlaybackControls extends JPanel implements Observer {
     private Model model;
     private boolean playEnabled;
-    private JButton playButton;
+    private PlayButton playButton;
     private JSlider playSlider;
     private JButton startButton;
     private JButton endButton;
@@ -20,12 +20,10 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         this.shouldCallChange = true;
 
         //Play button
-        playButton = new JButton("Play");
+        playButton = new PlayButton(
+                (ActionEvent e) ->  model.playForward(),
+                (ActionEvent e) ->  model.stopPlayback());
         this.add(playButton);
-
-        playButton.addActionListener((ActionEvent e) -> {
-            model.playForward();
-        });
 
         //Slider
         playSlider = new JSlider(0, 0);
@@ -73,6 +71,12 @@ public class ViewPlaybackControls extends JPanel implements Observer {
             shouldCallChange = false;
 
             setPlayEnabled(true);
+
+            if (model.isPlaying()) {
+                playButton.toPauseButton();
+            } else {
+                playButton.toPlayButton();
+            }
 
             playSlider.setMaximum(numPoints);
             playSlider.setValue(model.getPointIndex());

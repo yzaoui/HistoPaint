@@ -53,7 +53,7 @@ public class Model {
 
             if (index >= this.getPointCount()) {
                 //If player is at the end, stop playback
-                timer.stop();
+                this.stopPlayback();
             } else {
                 //Add surplus/debt since last frame
                 excess += delay - (int)(System.currentTimeMillis() - lastUpdate);
@@ -191,6 +191,14 @@ public class Model {
         lastUpdate = System.currentTimeMillis();
         excess = 0;
         timer.start();
+
+        notifyObservers();
+    }
+
+    public void stopPlayback() {
+        this.timer.stop();
+
+        notifyObservers();
     }
 
     public float getStrokeWidth() {
@@ -213,5 +221,9 @@ public class Model {
 
     public int getPointCount() {
         return strokeCount * maxPointsPerStroke;
+    }
+
+    public boolean isPlaying() {
+        return timer.isRunning();
     }
 }
