@@ -2,11 +2,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import javax.swing.*;
+import javax.swing.filechooser.*;
 
 public class View extends JFrame implements Observer {
 
     private Model model;
 
+    private JFileChooser fileChooser;
     private JPanel leftPanel;
     private ViewColorPalette colorPanel;
     private ViewStrokeControl strokePanel;
@@ -35,11 +37,13 @@ public class View extends JFrame implements Observer {
         JMenuItem save = new JMenuItem("Save");
         fileMenu.add(save);
 
+        fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Animation (*.anim)", "anim"));
+
         save.addActionListener((ActionEvent e) -> {
-            JFileChooser chooser = new JFileChooser();
-            int state = chooser.showSaveDialog(this);
+            int state = fileChooser.showSaveDialog(this);
             if (state == JFileChooser.APPROVE_OPTION) {
-                View.this.saveModel(chooser.getSelectedFile());
+                View.this.saveModel(fileChooser.getSelectedFile());
             }
         });
 
@@ -47,10 +51,9 @@ public class View extends JFrame implements Observer {
         fileMenu.add(load);
 
         load.addActionListener((ActionEvent e) -> {
-            JFileChooser chooser = new JFileChooser();
-            int state = chooser.showOpenDialog(this);
+            int state = fileChooser.showOpenDialog(this);
             if (state == JFileChooser.APPROVE_OPTION) {
-                View.this.loadModel(chooser.getSelectedFile());
+                View.this.loadModel(fileChooser.getSelectedFile());
             }
         });
 
