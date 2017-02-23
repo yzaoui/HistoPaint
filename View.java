@@ -41,6 +41,10 @@ public class View extends JFrame implements Observer {
         JMenuItem exit = new JMenuItem("Exit");
         fileMenu.add(exit);
 
+        // Hook up this observer so that it will be notified when the model
+        // changes.
+        this.model = model;
+
         /********************
          * Set up layout
          ********************/
@@ -50,6 +54,20 @@ public class View extends JFrame implements Observer {
         this.add(leftPanel, BorderLayout.WEST);
         leftPanel.setBackground(Color.darkGray);
 
+        this.setupSubViews();
+
+        setVisible(true);
+    }
+
+    private void replaceSubViews() {
+        leftPanel.removeAll();
+        this.remove(playbackPanel);
+        this.remove(drawPanel);
+
+        this.setupSubViews();
+    }
+
+    private void setupSubViews() {
         /********************
          * Color Picker
          ********************/
@@ -74,12 +92,8 @@ public class View extends JFrame implements Observer {
         drawPanel = new ViewCanvas(model);
         this.add(drawPanel, BorderLayout.CENTER);
 
-        // Hook up this observer so that it will be notified when the model
-        // changes.
-        this.model = model;
         this.model.addObserver(this);
 
-        setVisible(true);
     }
 
     /**
