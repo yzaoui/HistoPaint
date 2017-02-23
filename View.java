@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.*;
 import javax.swing.*;
 
 public class View extends JFrame implements Observer {
@@ -33,8 +35,24 @@ public class View extends JFrame implements Observer {
         JMenuItem save = new JMenuItem("Save");
         fileMenu.add(save);
 
+        save.addActionListener((ActionEvent e) -> {
+            JFileChooser chooser = new JFileChooser();
+            int state = chooser.showSaveDialog(this);
+            if (state == JFileChooser.APPROVE_OPTION) {
+                View.this.saveModel(chooser.getSelectedFile());
+            }
+        });
+
         JMenuItem load = new JMenuItem("Load");
         fileMenu.add(load);
+
+        load.addActionListener((ActionEvent e) -> {
+            JFileChooser chooser = new JFileChooser();
+            int state = chooser.showOpenDialog(this);
+            if (state == JFileChooser.APPROVE_OPTION) {
+                View.this.loadModel(chooser.getSelectedFile());
+            }
+        });
 
         fileMenu.addSeparator();
 
@@ -93,7 +111,37 @@ public class View extends JFrame implements Observer {
         this.add(drawPanel, BorderLayout.CENTER);
 
         this.model.addObserver(this);
+    }
 
+    public void saveModel(File file) {
+        try {
+            FileOutputStream fos = new FileOutputStream(file + ".anim");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(this.model);
+            oos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadModel(File file) {
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            this.model = (Model)ois.readObject();
+            this.replaceSubViews();
+            this.revalidate();
+            this.update(this.model);
+            ois.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
