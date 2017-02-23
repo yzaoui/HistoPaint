@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,7 @@ public class Model {
     /** The observers that are watching this model for changes. */
     private List<Observer> observers;
     private Graphics2D gc;
+    private BufferedImage img;
     private int canvasW, canvasH;
     private int oldX, oldY;
     private Color color;
@@ -38,6 +40,8 @@ public class Model {
         this.lineIndex = 0;
         this.lineCount = 0;
         this.maxLinesPerStroke = 0;
+        this.canvasW = 400;
+        this.canvasH = 300;
         this.timer = new PlayTimer(0, (ActionEvent e) -> {
             int toSkip = 0; //Number of lines to skip
 
@@ -64,6 +68,8 @@ public class Model {
         });
         this.strokeStarted = false;
         this.inCanvas = false;
+        this.img = new BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB);
+        this.gc = this.img.createGraphics();
     }
 
     /**
@@ -89,10 +95,8 @@ public class Model {
         }
     }
 
-    public void setGraphics(Graphics2D graphics, int width, int height) {
-        this.gc = graphics;
-        this.canvasW = width;
-        this.canvasH = height;
+    public BufferedImage getBufferedImage() {
+        return this.img;
     }
 
     public void strokeStart(int x, int y) {

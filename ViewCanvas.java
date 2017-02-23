@@ -14,8 +14,7 @@ public class ViewCanvas extends JPanel implements Observer {
     public ViewCanvas(Model model) {
         this.model = model;
 
-        this.canvas = new BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB);
-        this.model.setGraphics(this.canvas.createGraphics(), this.canvas.getWidth(), this.canvas.getHeight());
+        this.canvas = this.model.getBufferedImage();
 
         this.setBackground(Color.white);
 

@@ -26,7 +26,7 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         playSlider.setPaintTicks(true);
         playSlider.addChangeListener((ChangeEvent e) -> {
             if (shouldCallChange) {
-                model.setLineIndex(playSlider.getValue());
+                this.model.setLineIndex(playSlider.getValue());
             }
         });
 

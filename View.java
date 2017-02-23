@@ -53,35 +53,31 @@ public class View extends JFrame implements Observer {
         /********************
          * Color Picker
          ********************/
-        colorPanel = new ViewColorPalette(model);
-        model.addObserver(colorPanel);
+        colorPanel = new ViewColorPalette(this.model);
         leftPanel.add(colorPanel);
 
         /********************
          * Stroke Thickness
          ********************/
         strokePanel = new ViewStrokeControl(model);
-        model.addObserver(strokePanel);
         leftPanel.add(strokePanel);
 
         /********************
          * Playback Controls
          ********************/
         playbackPanel = new ViewPlaybackControls(model);
-        model.addObserver(playbackPanel);
-        this.add(playbackPanel, BorderLayout.SOUTH);;
+        this.add(playbackPanel, BorderLayout.SOUTH);
 
         /********************
          * Drawing Area
          ********************/
         drawPanel = new ViewCanvas(model);
-        model.addObserver(drawPanel);
         this.add(drawPanel, BorderLayout.CENTER);
 
         // Hook up this observer so that it will be notified when the model
         // changes.
         this.model = model;
-        model.addObserver(this);
+        this.model.addObserver(this);
 
         setVisible(true);
     }
@@ -89,5 +85,10 @@ public class View extends JFrame implements Observer {
     /**
      * Update with data from the model.
      */
-    public void update(Object observable) {}
+    public void update(Object observable) {
+        colorPanel.update(observable);
+        strokePanel.update(observable);
+        drawPanel.update(observable);
+        playbackPanel.update(observable);
+    }
 }
