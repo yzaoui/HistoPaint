@@ -240,6 +240,10 @@ public class Model implements Serializable {
         notifyObservers();
     }
 
+    public Color getColor() {
+        return this.color;
+    }
+
     public void setColor(Color color) {
         this.color = color;
         notifyObservers();

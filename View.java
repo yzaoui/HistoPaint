@@ -10,7 +10,9 @@ public class View extends JFrame implements Observer {
 
     private JFileChooser fileChooser;
     private JPanel leftPanel;
+    private SpringLayout springLayout;
     private ViewColorPalette colorPanel;
+    private ViewColorPreview colorPreview;
     private ViewStrokeControl strokePanel;
     private ViewPlaybackControls playbackPanel;
     private ViewCanvas drawPanel;
@@ -90,7 +92,11 @@ public class View extends JFrame implements Observer {
         leftPanel = new JPanel();
         this.add(leftPanel, BorderLayout.WEST);
         leftPanel.setBackground(Color.darkGray);
+        leftPanel.setPreferredSize(new Dimension(80, 0));
 
+        springLayout = new SpringLayout();
+
+        leftPanel.setLayout(springLayout);
         this.setupSubViews();
 
         setVisible(true);
@@ -112,6 +118,12 @@ public class View extends JFrame implements Observer {
         leftPanel.add(colorPanel);
 
         /********************
+         * Color Preview
+         ********************/
+        colorPreview = new ViewColorPreview(this.model);
+        leftPanel.add(colorPreview);
+
+        /********************
          * Stroke Thickness
          ********************/
         strokePanel = new ViewStrokeControl(model);
@@ -130,6 +142,17 @@ public class View extends JFrame implements Observer {
         this.add(drawPanel, BorderLayout.CENTER);
 
         this.model.addObserver(this);
+
+        springLayout.putConstraint(SpringLayout.NORTH, colorPanel, 0, SpringLayout.NORTH, leftPanel);
+        springLayout.putConstraint(SpringLayout.EAST, colorPanel, 80, SpringLayout.WEST, leftPanel);
+        springLayout.putConstraint(SpringLayout.WEST, colorPanel, 0, SpringLayout.WEST, leftPanel);
+        springLayout.putConstraint(SpringLayout.SOUTH, colorPanel, 160, SpringLayout.NORTH, leftPanel);
+
+        springLayout.putConstraint(SpringLayout.NORTH, colorPreview, 10, SpringLayout.SOUTH, colorPanel);
+        springLayout.putConstraint(SpringLayout.SOUTH, colorPreview, -10, SpringLayout.NORTH, strokePanel);
+
+        springLayout.putConstraint(SpringLayout.WEST, strokePanel, 0, SpringLayout.WEST, leftPanel);
+        springLayout.putConstraint(SpringLayout.SOUTH, strokePanel, 0, SpringLayout.SOUTH, leftPanel);
     }
 
     public void saveModel(File file) {
@@ -173,6 +196,7 @@ public class View extends JFrame implements Observer {
      */
     public void update(Object observable) {
         colorPanel.update(observable);
+        colorPreview.update(observable);
         strokePanel.update(observable);
         drawPanel.update(observable);
         playbackPanel.update(observable);
