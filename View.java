@@ -5,10 +5,16 @@ import javax.swing.*;
 import javax.swing.filechooser.*;
 
 public class View extends JFrame implements Observer {
-
     private Model model;
 
-    private JFileChooser fileChooser;
+    private JMenuBar menuBar;
+        private JMenu fileMenu;
+            private JMenuItem save, load;
+                private JFileChooser fileChooser;
+            private JMenuItem exit;
+        private JMenu clipboardMenu;
+            private JMenuItem copy;
+
     private JPanel leftPanel;
     private SpringLayout springLayout;
     private ViewColorPalette colorPanel;
@@ -30,16 +36,16 @@ public class View extends JFrame implements Observer {
         /********************
          * Set up the menu bar
          ********************/
-        JMenuBar menuBar = new JMenuBar();
+        menuBar = new JMenuBar();
         this.setJMenuBar(menuBar);
 
         /********************
          * Set up File menu
          ********************/
-        JMenu fileMenu = new JMenu("File");
+        fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
 
-        JMenuItem save = new JMenuItem("Save");
+        save = new JMenuItem("Save");
         fileMenu.add(save);
 
         fileChooser = new JFileChooser();
@@ -52,7 +58,7 @@ public class View extends JFrame implements Observer {
             }
         });
 
-        JMenuItem load = new JMenuItem("Load");
+        load = new JMenuItem("Load");
         fileMenu.add(load);
 
         load.addActionListener((ActionEvent e) -> {
@@ -64,7 +70,7 @@ public class View extends JFrame implements Observer {
 
         fileMenu.addSeparator();
 
-        JMenuItem exit = new JMenuItem("Exit");
+        exit = new JMenuItem("Exit");
         fileMenu.add(exit);
 
         exit.addActionListener((ActionEvent e) -> {
@@ -74,9 +80,9 @@ public class View extends JFrame implements Observer {
         /********************
          * Set up Clipboard menu
          ********************/
-        JMenu clipboardMenu = new JMenu("Clipboard");
+        clipboardMenu = new JMenu("Clipboard");
         menuBar.add(clipboardMenu);
-        JMenuItem copy = new JMenuItem("Copy");
+        copy = new JMenuItem("Copy");
         clipboardMenu.add(copy);
 
         copy.addActionListener((ActionEvent e) -> {
@@ -199,6 +205,11 @@ public class View extends JFrame implements Observer {
      * Update with data from the model.
      */
     public void update(Object observable) {
+        boolean isPlaying = model.isPlayingForward() || model.isPlayingBackward();
+        save.setEnabled(!isPlaying);
+        load.setEnabled(!isPlaying);
+        copy.setEnabled(!isPlaying);
+
         colorPanel.update(observable);
         colorPreview.update(observable);
         strokePanel.update(observable);
