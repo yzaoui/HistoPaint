@@ -6,7 +6,7 @@ JAVA = java
 	$(JC) $(JFLAGS) $*.java
 
 CLASSES = \
-	Main.java Model.java View.java
+	ButtonPlay.java ButtonPlayBackward.java ButtonPlayForward.java ButtonSeek.java ButtonSeekEnd.java ButtonSeekNext.java ButtonSeekPrevious.java ButtonSeekStart.java Main.java Model.java Observer.java PaintingClipboard.java PlayTimer.java StrokeStruct.java View.java ViewCanvas.java ViewColorPalette.java ViewColorPreview.java ViewPlaybackControls.java ViewStrokeControl.java
 
 default: classes
 
