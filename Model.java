@@ -29,6 +29,8 @@ public class Model implements Serializable {
     private double excess;
     private boolean strokeStarted;
     private boolean inCanvas;
+    private enum Direction {NONE, FORWARD, BACKWARD};
+    private Direction dir;
 
     /**
      * Create a new model.
@@ -47,6 +49,7 @@ public class Model implements Serializable {
         this.inCanvas = false;
         this.canvasW = 400;
         this.canvasH = 300;
+        this.dir = Direction.NONE;
         this.initTransient();
     }
 
@@ -69,11 +72,16 @@ public class Model implements Serializable {
             }
             //Otherwise, there is not enough surplus for a cycle, so play normally
 
-            int index = Math.min(this.getLineIndex() + 1 + toSkip, this.getLineCount());
+            int index = 0;
+            if (this.dir == Direction.FORWARD) {
+                index = Math.min(this.getLineIndex() + 1 + toSkip, this.getLineCount());
+            } else if (this.dir == Direction.BACKWARD) {
+                index = Math.max(this.getLineIndex() - 1 - toSkip, 0);
+            }
             this.setLineIndex(index);
 
-            if (index >= this.getLineCount()) {
-                //If player is at the end, stop playback
+            if (index == this.getLineCount() || index == 0) {
+                //If player is at the start or end, stop playback
                 this.stopPlayback();
             } else {
                 //Add surplus/debt since last frame
@@ -114,7 +122,7 @@ public class Model implements Serializable {
     }
 
     public void strokeStart(int x, int y) {
-        if (this.isPlaying()) { return; } //Disallow drawing during playback
+        if (this.isPlayingForward() || this.isPlayingBackward()) { return; } //Disallow drawing during playback
         gc.setColor(this.color);
         gc.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         gc.drawLine(x, y, x, y);
@@ -185,49 +193,82 @@ public class Model implements Serializable {
     }
 
     public void setLineIndex(int index) {
-            gc.setColor(Color.white);
-            gc.fillRect(0, 0, canvasW, canvasH);
+        gc.setColor(Color.white);
+        gc.fillRect(0, 0, canvasW, canvasH);
 
-            this.lineIndex = index;
-            if (index == 0) {
-                this.strokeIndex = index;
-            } else { //If there's anything to draw
-                this.strokeIndex = (this.lineIndex - 1) / maxLinesPerStroke + 1;
+        this.lineIndex = index;
+        if (index == 0) {
+            this.strokeIndex = index;
+        } else { //If there's anything to draw
+            this.strokeIndex = (this.lineIndex - 1) / maxLinesPerStroke + 1;
 
-                for (int i = 0; i < strokeIndex; i++) {
-                    StrokeStruct str = strokeRecords.get(i);
-                    gc.setColor(str.getColor());
-                    gc.setStroke(new BasicStroke(str.getStrokeWidth(), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            for (int i = 0; i < strokeIndex; i++) {
+                StrokeStruct str = strokeRecords.get(i);
+                gc.setColor(str.getColor());
+                gc.setStroke(new BasicStroke(str.getStrokeWidth(), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
-                    //This is guaranteed to be a valid integer index in this stroke
-                    int relativeEndLineIndex = (int)(Math.min(maxLinesPerStroke, lineIndex - i* maxLinesPerStroke) * str.getLines().size() * 1.0 / maxLinesPerStroke);
-                    List<StrokeStruct.Line> lines = str.getLines().subList(0, relativeEndLineIndex);
+                //This is guaranteed to be a valid integer index in this stroke
+                int relativeEndLineIndex = (int)(Math.min(maxLinesPerStroke, lineIndex - i* maxLinesPerStroke) * str.getLines().size() * 1.0 / maxLinesPerStroke);
+                List<StrokeStruct.Line> lines = str.getLines().subList(0, relativeEndLineIndex);
 
-                    if (lines.size() > 0) {
-                        for (StrokeStruct.Line l : lines) {
-                            gc.drawLine(l.getX1(), l.getY1(), l.getX2(), l.getY2());
-                        }
+                if (lines.size() > 0) {
+                    for (StrokeStruct.Line l : lines) {
+                        gc.drawLine(l.getX1(), l.getY1(), l.getX2(), l.getY2());
                     }
                 }
             }
+        }
 
-            notifyObservers();
+        notifyObservers();
     }
 
-    public void playForward() {
+    private void play() {
         delay = 1000.0 / maxLinesPerStroke;
         timer.setDelay((int)(delay + 0.5));
         lastUpdate = System.currentTimeMillis();
         excess = 0;
         timer.start();
+    }
 
-        notifyObservers();
+    public void playForward() {
+        this.dir = Direction.FORWARD;
+        play();
+    }
+
+    public void playBackward() {
+        this.dir = Direction.BACKWARD;
+        play();
     }
 
     public void stopPlayback() {
         this.timer.stop();
+        this.dir = Direction.NONE;
 
         notifyObservers();
+    }
+
+    public void toNextStroke() {
+        if (strokeIndex != strokeCount) {
+            int index = strokeIndex * maxLinesPerStroke;
+            if (this.lineIndex == strokeIndex * maxLinesPerStroke) {
+                index += maxLinesPerStroke;
+            }
+            this.setLineIndex(index);
+        }
+    }
+
+    public void toPreviousStroke() {
+        if (strokeIndex != 0) {
+            this.setLineIndex((strokeIndex - 1) * maxLinesPerStroke);
+        }
+    }
+
+    public void toFirstStroke() {
+        this.setLineIndex(0);
+    }
+
+    public void toLastStroke() {
+        this.setLineIndex(this.lineCount);
     }
 
     public float getStrokeWidth() {
@@ -257,8 +298,12 @@ public class Model implements Serializable {
         return strokeCount * maxLinesPerStroke;
     }
 
-    public boolean isPlaying() {
-        return timer.isRunning();
+    public boolean isPlayingForward() {
+        return this.dir == Direction.FORWARD;
+    }
+
+    public boolean isPlayingBackward() {
+        return this.dir == Direction.BACKWARD;
     }
 
     public int getCanvasWidth() {

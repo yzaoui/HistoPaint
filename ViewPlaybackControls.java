@@ -1,15 +1,17 @@
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class ViewPlaybackControls extends JPanel implements Observer {
     private Model model;
     private boolean playEnabled;
-    private PlayButton playButton;
     private JSlider playSlider;
-    private StartButton startButton;
-    private EndButton endButton;
+    private ButtonSeekStart buttonSeekStart;
+    private ButtonSeekPrevious buttonSeekPrevious;
+    private ButtonPlayBackward buttonPlayBackward;
+    private ButtonPlayForward buttonPlayForward;
+    private ButtonSeekNext buttonSeekNext;
+    private ButtonSeekEnd buttonSeekEnd;
     private boolean shouldCallChange;
 
     public ViewPlaybackControls(Model model) {
@@ -30,30 +32,48 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         });
 
         //Start button
-        startButton = new StartButton((ActionEvent e) -> model.setLineIndex(0));
-        this.add(startButton);
+        buttonSeekStart = new ButtonSeekStart((ActionEvent e) -> model.toFirstStroke());
+        this.add(buttonSeekStart);
 
-        //Play button
-        playButton = new PlayButton(
+        //Previous button
+        buttonSeekPrevious = new ButtonSeekPrevious((ActionEvent e) -> model.toPreviousStroke());
+        this.add(buttonSeekPrevious);
+
+        //Play backward button
+        buttonPlayBackward = new ButtonPlayBackward(
+                (ActionEvent e) ->  model.playBackward(),
+                (ActionEvent e) ->  model.stopPlayback());
+        this.add(buttonPlayBackward);
+
+        //Play forward button
+        buttonPlayForward = new ButtonPlayForward(
                 (ActionEvent e) ->  model.playForward(),
                 (ActionEvent e) ->  model.stopPlayback());
-        this.add(playButton);
+        this.add(buttonPlayForward);
+
+        //Next button
+        buttonSeekNext = new ButtonSeekNext((ActionEvent e) -> model.toNextStroke());
+        this.add(buttonSeekNext);
 
         //End button
-        endButton = new EndButton((ActionEvent e) -> model.setLineIndex(playSlider.getMaximum()));
-        this.add(endButton);
+        buttonSeekEnd = new ButtonSeekEnd((ActionEvent e) -> model.toLastStroke());
+        this.add(buttonSeekEnd);
 
         //Disable playback controls
         playEnabled = true; //This is true to ensure the toggle happens
         setPlayEnabled(false);
     }
 
-    public void setPlayEnabled(boolean bool) {
+    private void setPlayEnabled(boolean bool) {
         if (playEnabled != bool) {
-            playButton.setEnabled(bool);
+            buttonSeekStart.setEnabled(bool);
+            buttonSeekPrevious.setEnabled(bool);
+            buttonPlayBackward.setEnabled(bool);
+            buttonPlayForward.setEnabled(bool);
+            buttonSeekNext.setEnabled(bool);
+            buttonSeekEnd.setEnabled(bool);
+
             playSlider.setEnabled(bool);
-            startButton.setEnabled(bool);
-            endButton.setEnabled(bool);
 
             playEnabled = bool;
         }
@@ -65,12 +85,20 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         if (numLines > 0) {
             shouldCallChange = false;
 
-            setPlayEnabled(true);
-
-            if (model.isPlaying()) {
-                playButton.toPauseButton();
+            if (model.isPlayingForward()) {
+                setPlayEnabled(false);
+                buttonPlayForward.setEnabled(true);
+                buttonPlayForward.toPauseButton();
+                buttonPlayBackward.toPlayButton();
+            } else if (model.isPlayingBackward()) {
+                setPlayEnabled(false);
+                buttonPlayBackward.setEnabled(true);
+                buttonPlayForward.toPlayButton();
+                buttonPlayBackward.toPauseButton();
             } else {
-                playButton.toPlayButton();
+                setPlayEnabled(true);
+                buttonPlayForward.toPlayButton();
+                buttonPlayBackward.toPlayButton();
             }
 
             playSlider.setMaximum(numLines);
