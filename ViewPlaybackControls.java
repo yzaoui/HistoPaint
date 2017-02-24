@@ -16,7 +16,6 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         this.model = model;
 
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        this.setBackground(Color.red);
         this.shouldCallChange = true;
 
         //Slider

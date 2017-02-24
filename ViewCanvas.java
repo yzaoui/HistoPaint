@@ -8,8 +8,6 @@ import java.awt.image.BufferedImage;
 public class ViewCanvas extends JPanel implements Observer {
     private Model model;
     private BufferedImage canvas;
-    private static final int canvasW = 400;
-    private static final int canvasH = 300;
 
     public ViewCanvas(Model model) {
         this.model = model;
@@ -23,8 +21,8 @@ public class ViewCanvas extends JPanel implements Observer {
             public void mousePressed(MouseEvent e) {
                 int pW = ViewCanvas.this.getWidth();
                 int pH = ViewCanvas.this.getHeight();
-                float scaleW = (float)canvasW / pW;
-                float scaleH = (float)canvasH / pH;
+                float scaleW = (float)ViewCanvas.this.model.getCanvasWidth() / pW;
+                float scaleH = (float)ViewCanvas.this.model.getCanvasHeight() / pH;
 
                 ViewCanvas.this.model.strokeStart((int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
             }
@@ -40,8 +38,8 @@ public class ViewCanvas extends JPanel implements Observer {
             public void mouseDragged(MouseEvent e) {
                 int pW = ViewCanvas.this.getWidth();
                 int pH = ViewCanvas.this.getHeight();
-                float scaleW = (float)canvasW / pW;
-                float scaleH = (float)canvasH / pH;
+                float scaleW = (float)ViewCanvas.this.model.getCanvasWidth() / pW;
+                float scaleH = (float)ViewCanvas.this.model.getCanvasHeight() / pH;
 
                 ViewCanvas.this.model.strokeContinue((int)(e.getX() * scaleW), (int)(e.getY() * scaleH));
             }

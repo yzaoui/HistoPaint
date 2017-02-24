@@ -116,7 +116,7 @@ public class Model implements Serializable {
     public void strokeStart(int x, int y) {
         if (this.isPlaying()) { return; } //Disallow drawing during playback
         gc.setColor(this.color);
-        gc.setStroke(new BasicStroke(strokeWidth));
+        gc.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         gc.drawLine(x, y, x, y);
 
         this.oldX = x;
@@ -197,7 +197,7 @@ public class Model implements Serializable {
                 for (int i = 0; i < strokeIndex; i++) {
                     StrokeStruct str = strokeRecords.get(i);
                     gc.setColor(str.getColor());
-                    gc.setStroke(new BasicStroke(str.getStrokeWidth()));
+                    gc.setStroke(new BasicStroke(str.getStrokeWidth(), BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
                     //This is guaranteed to be a valid integer index in this stroke
                     int relativeEndLineIndex = (int)(Math.min(maxLinesPerStroke, lineIndex - i* maxLinesPerStroke) * str.getLines().size() * 1.0 / maxLinesPerStroke);
@@ -255,5 +255,13 @@ public class Model implements Serializable {
 
     public boolean isPlaying() {
         return timer.isRunning();
+    }
+
+    public int getCanvasWidth() {
+        return canvasW;
+    }
+
+    public int getCanvasHeight() {
+        return canvasH;
     }
 }
