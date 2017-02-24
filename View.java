@@ -67,6 +67,10 @@ public class View extends JFrame implements Observer {
         JMenuItem exit = new JMenuItem("Exit");
         fileMenu.add(exit);
 
+        exit.addActionListener((ActionEvent e) -> {
+            System.exit(0);
+        });
+
         /********************
          * Set up Clipboard menu
          ********************/
