@@ -51,22 +51,12 @@ public class View extends JFrame implements Observer {
         fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("Animation (*.anim)", "anim"));
 
-        save.addActionListener((ActionEvent e) -> {
-            int state = fileChooser.showSaveDialog(this);
-            if (state == JFileChooser.APPROVE_OPTION) {
-                View.this.saveModel(fileChooser.getSelectedFile());
-            }
-        });
+        save.addActionListener((ActionEvent e) -> this.saveModel());
 
         load = new JMenuItem("Load");
         fileMenu.add(load);
 
-        load.addActionListener((ActionEvent e) -> {
-            int state = fileChooser.showOpenDialog(this);
-            if (state == JFileChooser.APPROVE_OPTION) {
-                View.this.loadModel(fileChooser.getSelectedFile());
-            }
-        });
+        load.addActionListener((ActionEvent e) -> this.loadModel());
 
         fileMenu.addSeparator();
 
@@ -165,39 +155,64 @@ public class View extends JFrame implements Observer {
         springLayout.putConstraint(SpringLayout.SOUTH, strokePanel, 0, SpringLayout.SOUTH, leftPanel);
     }
 
-    public void saveModel(File file) {
-        try {
-            FileOutputStream fos = new FileOutputStream(file + ".anim");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(this.model);
-            oos.close();
-        } catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(this, "File not found.\nCheck the file name and try again.", "File not found", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Invalid file animation. \nCheck the file and try again.", "Invalid file", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+    private boolean confirmOverwrite() {
+        if (this.model.isDirty()) {
+            int answer = JOptionPane.showConfirmDialog(this, "Do you want to save your existing work?", "Confirm overwrite", JOptionPane.YES_NO_CANCEL_OPTION);
+            if (answer == JOptionPane.YES_OPTION) {
+                this.saveModel();
+                return true;
+            } else if (answer == JOptionPane.NO_OPTION) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
         }
     }
 
-    public void loadModel(File file) {
-        try {
-            FileInputStream fis = new FileInputStream(file);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            this.model = (Model)ois.readObject();
-            this.replaceSubViews();
-            this.revalidate();
-            this.update(this.model);
-            ois.close();
-        } catch (FileNotFoundException e) {
-            JOptionPane.showMessageDialog(this, "File not found.\nCheck the file name and try again.", "File not found", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Invalid file animation. \nCheck the file and try again.", "Invalid file", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            JOptionPane.showMessageDialog(this, "Animation not found. \nCheck the file and try again.", "Invalid file", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+    private void saveModel() {
+        int state = fileChooser.showSaveDialog(this);
+        if (state == JFileChooser.APPROVE_OPTION) {
+            try {
+                FileOutputStream fos = new FileOutputStream(fileChooser.getSelectedFile() + ".anim");
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(this.model);
+                oos.close();
+                this.model.clean();
+            } catch (FileNotFoundException e) {
+                JOptionPane.showMessageDialog(this, "File not found.\nCheck the file name and try again.", "File not found", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Invalid file animation. \nCheck the file and try again.", "Invalid file", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void loadModel() {
+        //Prompt user before overwriting
+        if (!this.confirmOverwrite()) { return; }
+        int state = fileChooser.showOpenDialog(this);
+        if (state == JFileChooser.APPROVE_OPTION) {
+            try {
+                FileInputStream fis = new FileInputStream(fileChooser.getSelectedFile());
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                this.model = (Model)ois.readObject();
+                this.replaceSubViews();
+                this.revalidate();
+                this.update(this.model);
+                ois.close();
+            } catch (FileNotFoundException e) {
+                JOptionPane.showMessageDialog(this, "File not found.\nCheck the file name and try again.", "File not found", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Invalid file animation. \nCheck the file and try again.", "Invalid file", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                JOptionPane.showMessageDialog(this, "Animation not found. \nCheck the file and try again.", "Invalid file", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
         }
     }
 

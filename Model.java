@@ -13,6 +13,7 @@ public class Model implements Serializable {
     private transient Graphics2D gc;
     private transient BufferedImage img;
     private transient PlayTimer timer;
+    private transient boolean isDirty;
     //Properties of the model
     private int canvasW, canvasH;
     private int oldX, oldY;
@@ -92,6 +93,7 @@ public class Model implements Serializable {
         this.img = new BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB);
         this.gc = this.img.createGraphics();
         this.setLineIndex(this.lineIndex); //Do this because Graphics2d is not serializable
+        this.isDirty = false;
     }
 
     /**
@@ -123,6 +125,7 @@ public class Model implements Serializable {
 
     public void strokeStart(int x, int y) {
         if (this.isPlayingForward() || this.isPlayingBackward()) { return; } //Disallow drawing during playback
+        this.isDirty = true;
         gc.setColor(this.color);
         gc.setStroke(new BasicStroke(strokeWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         gc.drawLine(x, y, x, y);
@@ -312,5 +315,13 @@ public class Model implements Serializable {
 
     public int getCanvasHeight() {
         return canvasH;
+    }
+
+    public boolean isDirty() {
+        return this.isDirty;
+    }
+
+    public void clean() {
+        this.isDirty = false;
     }
 }
