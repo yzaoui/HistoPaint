@@ -21,7 +21,7 @@ public class View extends JFrame implements Observer {
     public View(Model model) {
         // Set up the window.
         this.setTitle("Paint");
-        this.setMinimumSize(new Dimension(128, 128));
+        this.setMinimumSize(new Dimension(480, 400));
         this.setSize(800, 600);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
