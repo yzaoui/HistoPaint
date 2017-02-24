@@ -9,6 +9,7 @@ public class View extends JFrame implements Observer {
 
     private JMenuBar menuBar;
         private JMenu fileMenu;
+            private JMenuItem newDraw;
             private JMenuItem save, load;
                 private JFileChooser fileChooser;
             private JMenuItem exit;
@@ -45,27 +46,32 @@ public class View extends JFrame implements Observer {
         fileMenu = new JMenu("File");
         menuBar.add(fileMenu);
 
+        newDraw = new JMenuItem("New");
+        fileMenu.add(newDraw);
+
+        newDraw.addActionListener((ActionEvent e) -> this.newDrawing());
+
+        fileMenu.addSeparator();
+
         save = new JMenuItem("Save");
         fileMenu.add(save);
 
         fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("Animation (*.anim)", "anim"));
 
-        save.addActionListener((ActionEvent e) -> this.saveModel());
+        save.addActionListener((ActionEvent e) -> this.saveDrawing());
 
         load = new JMenuItem("Load");
         fileMenu.add(load);
 
-        load.addActionListener((ActionEvent e) -> this.loadModel());
+        load.addActionListener((ActionEvent e) -> this.loadDrawing());
 
         fileMenu.addSeparator();
 
         exit = new JMenuItem("Exit");
         fileMenu.add(exit);
 
-        exit.addActionListener((ActionEvent e) -> {
-            System.exit(0);
-        });
+        exit.addActionListener((ActionEvent e) -> this.exitDrawing());
 
         /********************
          * Set up Clipboard menu
@@ -159,7 +165,7 @@ public class View extends JFrame implements Observer {
         if (this.model.isDirty()) {
             int answer = JOptionPane.showConfirmDialog(this, "Do you want to save your existing work?", "Confirm overwrite", JOptionPane.YES_NO_CANCEL_OPTION);
             if (answer == JOptionPane.YES_OPTION) {
-                this.saveModel();
+                this.saveDrawing();
                 return true;
             } else if (answer == JOptionPane.NO_OPTION) {
                 return true;
@@ -171,7 +177,17 @@ public class View extends JFrame implements Observer {
         }
     }
 
-    private void saveModel() {
+    private void newDrawing() {
+        //Prompt user before overwriting
+        if (!this.confirmOverwrite()) { return; }
+
+        this.model = new Model();
+        this.replaceSubViews();
+        this.revalidate();
+        this.update(this.model);
+    }
+
+    private void saveDrawing() {
         int state = fileChooser.showSaveDialog(this);
         if (state == JFileChooser.APPROVE_OPTION) {
             try {
@@ -190,9 +206,10 @@ public class View extends JFrame implements Observer {
         }
     }
 
-    private void loadModel() {
+    private void loadDrawing() {
         //Prompt user before overwriting
         if (!this.confirmOverwrite()) { return; }
+
         int state = fileChooser.showOpenDialog(this);
         if (state == JFileChooser.APPROVE_OPTION) {
             try {
@@ -214,6 +231,13 @@ public class View extends JFrame implements Observer {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void exitDrawing() {
+        //Prompt user before overwriting
+        if (!this.confirmOverwrite()) { return; }
+
+        System.exit(0);
     }
 
     /**
