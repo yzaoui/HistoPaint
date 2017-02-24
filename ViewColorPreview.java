@@ -7,7 +7,6 @@ public class ViewColorPreview extends JPanel implements Observer {
 
     public ViewColorPreview(Model model) {
         this.model = model;
-        this.setBackground(Color.white);
 
         this.setLayout(new BorderLayout());
 

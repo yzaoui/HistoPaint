@@ -274,7 +274,7 @@ public class Model implements Serializable {
         this.setLineIndex(this.lineCount);
     }
 
-    public float getStrokeWidth() {
+    public int getStrokeWidth() {
         return strokeWidth;
     }
 

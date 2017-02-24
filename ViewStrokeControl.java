@@ -4,24 +4,25 @@ import java.awt.*;
 
 public class ViewStrokeControl extends JPanel implements Observer {
     private Model model;
+    private JSlider widthSlider;
 
     public ViewStrokeControl(Model model) {
         this.model = model;
 
-        SpinnerNumberModel numModel = new SpinnerNumberModel(model.getStrokeWidth(), 1, 15, 1);
-        JSpinner spinner = new JSpinner(numModel);
-        spinner.setFont(new Font("Dialog", Font.BOLD, 20));
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.setLayout(new BorderLayout());
         this.setMinimumSize(new Dimension(80, 55));
-        this.add(new Label("Stroke width:"));
-        this.add(spinner);
+        this.add(new Label("Stroke width:"), BorderLayout.NORTH);
 
-        spinner.addChangeListener((ChangeEvent e) -> {
-            int newStrokeWidth = numModel.getNumber().intValue();
+        widthSlider = new JSlider(JSlider.VERTICAL, 1, 15, 3);
+        this.add(widthSlider, BorderLayout.CENTER);
 
-            model.setStrokeWidth(newStrokeWidth);
-        });
+        widthSlider.addChangeListener((ChangeEvent e) -> this.model.setStrokeWidth(widthSlider.getValue()));
+        widthSlider.setMajorTickSpacing(1);
+        widthSlider.setSnapToTicks(true);
+        widthSlider.setPaintTicks(true);
     }
 
-    public void update(Object observable) {}
+    public void update(Object observable) {
+        this.widthSlider.setValue(this.model.getStrokeWidth());
+    }
 }

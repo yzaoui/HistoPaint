@@ -30,7 +30,7 @@ public class View extends JFrame implements Observer {
     public View(Model model) {
         // Set up the window.
         this.setTitle("Paint");
-        this.setMinimumSize(new Dimension(480, 400));
+        this.setMinimumSize(new Dimension(480, 450));
         this.setSize(800, 600);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -60,6 +60,7 @@ public class View extends JFrame implements Observer {
         fileChooser.setFileFilter(new FileNameExtensionFilter("Animation (*.anim)", "anim"));
 
         save.addActionListener((ActionEvent e) -> this.saveDrawing());
+        save.setEnabled(false);
 
         load = new JMenuItem("Load");
         fileMenu.add(load);
@@ -155,8 +156,12 @@ public class View extends JFrame implements Observer {
         springLayout.putConstraint(SpringLayout.SOUTH, colorPanel, 160, SpringLayout.NORTH, leftPanel);
 
         springLayout.putConstraint(SpringLayout.NORTH, colorPreview, 10, SpringLayout.SOUTH, colorPanel);
-        springLayout.putConstraint(SpringLayout.SOUTH, colorPreview, -10, SpringLayout.NORTH, strokePanel);
+        springLayout.putConstraint(SpringLayout.EAST, colorPreview, 0, SpringLayout.EAST, leftPanel);
+        springLayout.putConstraint(SpringLayout.WEST, colorPreview, 0, SpringLayout.WEST, leftPanel);
+        springLayout.putConstraint(SpringLayout.SOUTH, colorPreview, 65, SpringLayout.SOUTH, colorPanel);
 
+        springLayout.putConstraint(SpringLayout.NORTH, strokePanel, 10, SpringLayout.SOUTH, colorPreview);
+        springLayout.putConstraint(SpringLayout.EAST, strokePanel, 0, SpringLayout.EAST, leftPanel);
         springLayout.putConstraint(SpringLayout.WEST, strokePanel, 0, SpringLayout.WEST, leftPanel);
         springLayout.putConstraint(SpringLayout.SOUTH, strokePanel, 0, SpringLayout.SOUTH, leftPanel);
     }
@@ -245,7 +250,7 @@ public class View extends JFrame implements Observer {
      */
     public void update(Object observable) {
         boolean isPlaying = model.isPlayingForward() || model.isPlayingBackward();
-        save.setEnabled(!isPlaying);
+        save.setEnabled(!isPlaying && this.model.getLineCount() > 0); //Don't allow saving if the drawing is empty
         load.setEnabled(!isPlaying);
         copy.setEnabled(!isPlaying);
 
