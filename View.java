@@ -48,6 +48,7 @@ public class View extends JFrame implements Observer {
 
         newDraw = new JMenuItem("New");
         fileMenu.add(newDraw);
+        newDraw.setToolTipText("Create new animation");
 
         newDraw.addActionListener((ActionEvent e) -> this.newDrawing());
 
@@ -55,6 +56,7 @@ public class View extends JFrame implements Observer {
 
         save = new JMenuItem("Save");
         fileMenu.add(save);
+        save.setToolTipText("Save the current animation");
 
         fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("Animation (*.anim)", "anim"));
@@ -64,6 +66,7 @@ public class View extends JFrame implements Observer {
 
         load = new JMenuItem("Load");
         fileMenu.add(load);
+        load.setToolTipText("Load an existing animation");
 
         load.addActionListener((ActionEvent e) -> this.loadDrawing());
 
@@ -71,6 +74,7 @@ public class View extends JFrame implements Observer {
 
         exit = new JMenuItem("Exit");
         fileMenu.add(exit);
+        exit.setToolTipText("Exit the application");
 
         exit.addActionListener((ActionEvent e) -> this.exitDrawing());
 
@@ -80,6 +84,8 @@ public class View extends JFrame implements Observer {
         clipboardMenu = new JMenu("Clipboard");
         menuBar.add(clipboardMenu);
         copy = new JMenuItem("Copy");
+        copy.setToolTipText("Copy the current frame to clipboard");
+        copy.setEnabled(false);
         clipboardMenu.add(copy);
 
         copy.addActionListener((ActionEvent e) -> {
@@ -250,9 +256,10 @@ public class View extends JFrame implements Observer {
      */
     public void update(Object observable) {
         boolean isPlaying = model.isPlayingForward() || model.isPlayingBackward();
-        save.setEnabled(!isPlaying && this.model.getLineCount() > 0); //Don't allow saving if the drawing is empty
+        save.setEnabled(!isPlaying && this.model.getLineCount() > 0);
         load.setEnabled(!isPlaying);
-        copy.setEnabled(!isPlaying);
+        copy.setEnabled(!isPlaying && this.model.getLineCount() > 0);
+        //Don't allow saving or copying if the drawing is empty
 
         colorPanel.update(observable);
         colorPreview.update(observable);

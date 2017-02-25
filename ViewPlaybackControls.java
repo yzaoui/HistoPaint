@@ -34,30 +34,36 @@ public class ViewPlaybackControls extends JPanel implements Observer {
         //Start button
         buttonSeekStart = new ButtonSeekStart((ActionEvent e) -> model.toFirstStroke());
         this.add(buttonSeekStart);
+        buttonSeekStart.setToolTipText("Go to start of animation");
 
         //Previous button
         buttonSeekPrevious = new ButtonSeekPrevious((ActionEvent e) -> model.toPreviousStroke());
         this.add(buttonSeekPrevious);
+        buttonSeekPrevious.setToolTipText("Go to previous stroke connection");
 
         //Play backward button
         buttonPlayBackward = new ButtonPlayBackward(
                 (ActionEvent e) ->  model.playBackward(),
                 (ActionEvent e) ->  model.stopPlayback());
         this.add(buttonPlayBackward);
+        buttonPlayBackward.setToolTipText("Play animation backward");
 
         //Play forward button
         buttonPlayForward = new ButtonPlayForward(
                 (ActionEvent e) ->  model.playForward(),
                 (ActionEvent e) ->  model.stopPlayback());
         this.add(buttonPlayForward);
+        buttonPlayForward.setToolTipText("Play animation forward");
 
         //Next button
         buttonSeekNext = new ButtonSeekNext((ActionEvent e) -> model.toNextStroke());
         this.add(buttonSeekNext);
+        buttonSeekNext.setToolTipText("Go to next stroke connection");
 
         //End button
         buttonSeekEnd = new ButtonSeekEnd((ActionEvent e) -> model.toLastStroke());
         this.add(buttonSeekEnd);
+        buttonSeekEnd.setToolTipText("Go to end of animation");
 
         //Disable playback controls
         playEnabled = true; //This is true to ensure the toggle happens
