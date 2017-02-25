@@ -16,16 +16,18 @@ public abstract class ButtonPlay extends JButton {
 
     protected State state;
 
-    public ButtonPlay(ActionListener playListener, ActionListener pauseListener, Icon playIcon) {
+    public ButtonPlay(ActionListener playListener, ActionListener pauseListener, Icon playIcon, Icon pressedIcon) {
         super();
         this.playListener = playListener;
         this.pauseListener = pauseListener;
         this.state = State.NONE;
         this.setPreferredSize(new Dimension(40, 40));
+        this.setPressedIcon(pressedIcon);
         this.playIcon = playIcon;
         this.pauseIcon = new Icon() {
             @Override
             public void paintIcon(Component c, Graphics g, int x, int y) {
+                g.setColor(Color.black);
                 g.fillRect(5, 5, 10, 30);
                 g.fillRect(25, 5, 10, 30);
             }
@@ -51,6 +53,7 @@ public abstract class ButtonPlay extends JButton {
             }
             this.addActionListener(playListener);
             this.setIcon(playIcon);
+            this.setDisabledIcon(playIcon);
             this.state = State.PLAY;
         }
     }
@@ -62,6 +65,7 @@ public abstract class ButtonPlay extends JButton {
             }
             this.addActionListener(pauseListener);
             this.setIcon(pauseIcon);
+            this.setDisabledIcon(pauseIcon);
             this.state = State.PAUSE;
         }
     }
