@@ -92,6 +92,7 @@ public class Model implements Serializable {
         });
         this.img = new BufferedImage(canvasW, canvasH, BufferedImage.TYPE_INT_ARGB);
         this.gc = this.img.createGraphics();
+        this.gc.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
         this.setLineIndex(this.lineIndex); //Do this because Graphics2d is not serializable
         this.isDirty = false;
     }

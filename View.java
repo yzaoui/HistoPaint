@@ -1,5 +1,5 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.filechooser.*;
@@ -32,7 +32,13 @@ public class View extends JFrame implements Observer {
         this.setTitle("Paint");
         this.setMinimumSize(new Dimension(480, 450));
         this.setSize(800, 600);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                View.this.exitDrawing();
+            }
+        });
 
         /********************
          * Set up the menu bar
