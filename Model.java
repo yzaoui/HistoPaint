@@ -251,7 +251,7 @@ public class Model implements Serializable {
     }
 
     public void toNextStroke() {
-        if (strokeIndex != strokeCount) {
+        if (lineIndex != lineCount) {
             int index = strokeIndex * maxLinesPerStroke;
             if (this.lineIndex == strokeIndex * maxLinesPerStroke) {
                 index += maxLinesPerStroke;
@@ -261,7 +261,7 @@ public class Model implements Serializable {
     }
 
     public void toPreviousStroke() {
-        if (strokeIndex != 0) {
+        if (lineIndex != 0) {
             this.setLineIndex((strokeIndex - 1) * maxLinesPerStroke);
         }
     }

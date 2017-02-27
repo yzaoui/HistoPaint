@@ -86,10 +86,12 @@ public class ViewPlaybackControls extends JPanel implements Observer {
     }
 
     public void update(Object observable) {
-        int numLines = model.getLineCount();
+        int lineCount = model.getLineCount();
         //Only update if there are strokes
-        if (numLines > 0) {
+        if (lineCount > 0) {
             shouldCallChange = false;
+
+            int lineIndex = model.getLineIndex();
 
             if (model.isPlayingForward()) {
                 setPlayEnabled(false);
@@ -102,13 +104,23 @@ public class ViewPlaybackControls extends JPanel implements Observer {
                 buttonPlayForward.toPlayButton();
                 buttonPlayBackward.toPauseButton();
             } else {
-                setPlayEnabled(true);
+                playEnabled = true;
+
+                buttonSeekStart.setEnabled(lineIndex > 0);
+                buttonSeekPrevious.setEnabled(lineIndex > 0);
+                buttonPlayBackward.setEnabled(lineIndex > 0);
+                buttonPlayForward.setEnabled(lineIndex < lineCount);
+                buttonSeekNext.setEnabled(lineIndex < lineCount);
+                buttonSeekEnd.setEnabled(lineIndex < lineCount);
+
+                playSlider.setEnabled(true);
+
                 buttonPlayForward.toPlayButton();
                 buttonPlayBackward.toPlayButton();
             }
 
-            playSlider.setMaximum(numLines);
-            playSlider.setValue(model.getLineIndex());
+            playSlider.setMaximum(lineCount);
+            playSlider.setValue(lineIndex);
             playSlider.setMajorTickSpacing(model.getLinesPerStroke());
 
             shouldCallChange = true;
