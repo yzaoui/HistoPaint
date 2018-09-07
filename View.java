@@ -29,7 +29,7 @@ public class View extends JFrame implements Observer {
      */
     public View(Model model) {
         // Set up the window.
-        this.setTitle("Paint");
+        this.setTitle("HistoPaint");
         this.setMinimumSize(new Dimension(480, 450));
         this.setSize(800, 600);
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
