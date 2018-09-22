@@ -60,7 +60,7 @@ public class Model implements Serializable {
     }
 
     private void initTransient() {
-        this.observers = new ArrayList();
+        this.observers = new ArrayList<Observer>();
         this.timer = new PlayTimer(0, (ActionEvent e) -> {
             int toSkip = 0; //Number of lines to skip
 
